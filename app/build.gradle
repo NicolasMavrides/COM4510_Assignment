@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\Users\\reste\\AndroidStudioProjects\\keyStore.jks')
+            storeFile file('C:\\Users\\Antoine\\Downloads\\keyStore.jks')
             storePassword 'com4510iscool'
             keyAlias = 'com4510'
             keyPassword 'com4510iscool'
@@ -12,7 +12,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.example.myroutes"
+        applicationId 'uk.ac.shef.oak.com4510'
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1

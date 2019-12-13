@@ -47,6 +47,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal">
+<!--            style="?android:attr/buttonBarStyle">-->
 
             <Button
                 android:id="@+id/button_start"
@@ -57,10 +58,11 @@
                 android:background="#FFFFFF"
                 android:gravity="center"
                 android:scaleType="fitCenter"
-                android:text="Start" />
+                android:text="@string/map_activity_start_button"></Button>
+<!--                style="?android:attr/buttonBarButtonStyle"/>-->
 
             <Button
-                android:id="@+id/button_end"
+                android:id="@+id/button_pause"
                 android:layout_width="0dp"
                 android:layout_height="35dp"
                 android:layout_weight="1"
@@ -68,7 +70,21 @@
                 android:background="#FFFFFF"
                 android:gravity="center"
                 android:scaleType="fitCenter"
-                android:text="Stop" />
+                android:text="@string/map_activity_pause_button"></Button>
+<!--                style="?android:attr/buttonBarButtonStyle"/>-->
+
+            <Button
+                android:id="@+id/button_stop"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:text="@string/map_activity_stop_button"></Button>
+<!--                style="?android:attr/buttonBarButtonStyle"/>-->
+
         </LinearLayout>
 
     </LinearLayout>

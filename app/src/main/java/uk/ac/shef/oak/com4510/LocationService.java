@@ -57,6 +57,12 @@ public class LocationService extends IntentService {
                                         List<LatLng> points = route.getPoints();
                                         points.add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
                                         route.setPoints(points);
+                                        // set starting marker
+                                        if (MapsActivity.isStartPoint()){
+                                            MapsActivity.setMarker(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
+                                                    MapsActivity.getMap(), "Start of Trip", true, 14.0f);
+                                            MapsActivity.stopStartPoint();
+                                        }
                                         /*MapsActivity.getMap().addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                                                 .title(mLastUpdateTime));*/
                                     }
@@ -75,4 +81,5 @@ public class LocationService extends IntentService {
 
         }
     }
+
 }
