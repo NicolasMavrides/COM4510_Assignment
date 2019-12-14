@@ -8,6 +8,7 @@ package uk.ac.shef.oak.com4510;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -411,6 +412,12 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         }
     }
 
+    //////////////////////////////////////////////////
+    //                                              //
+    //                  Utils                       //
+    //                                              //
+    //////////////////////////////////////////////////
+
     /**
      * Sets Marker on Map
      * @param pos  - LatLong Position on where to put the marker
@@ -449,6 +456,18 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
             }
         }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i ("isMyServiceRunning?", true+"");
+                return true;
+            }
+        }
+        Log.i ("isMyServiceRunning?", false+"");
+        return false;
     }
 
 }
