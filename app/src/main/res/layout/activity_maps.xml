@@ -8,14 +8,15 @@
     tools:context="uk.ac.shef.oak.com4510.MapsActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/add_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
         android:layout_gravity="bottom|start"
-        android:layout_marginBottom="80dp"
         android:layout_marginLeft="10dp"
-        android:src="@drawable/ic_menu_camera" />
+        android:layout_marginBottom="80dp"
+        android:src="@drawable/ic_menu_camera"
+        app:backgroundTint="#096CEE"
+        app:rippleColor="#000A0808" />
 
     <LinearLayout
         android:id="@+id/linear_layout"
@@ -47,7 +48,6 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal">
-<!--            style="?android:attr/buttonBarStyle">-->
 
             <Button
                 android:id="@+id/button_start"
@@ -58,8 +58,7 @@
                 android:background="#FFFFFF"
                 android:gravity="center"
                 android:scaleType="fitCenter"
-                android:text="@string/map_activity_start_button"></Button>
-<!--                style="?android:attr/buttonBarButtonStyle"/>-->
+                android:text="@string/map_activity_start_button"/>
 
             <Button
                 android:id="@+id/button_pause"
@@ -70,8 +69,7 @@
                 android:background="#FFFFFF"
                 android:gravity="center"
                 android:scaleType="fitCenter"
-                android:text="@string/map_activity_pause_button"></Button>
-<!--                style="?android:attr/buttonBarButtonStyle"/>-->
+                android:text="@string/map_activity_pause_button"/>
 
             <Button
                 android:id="@+id/button_stop"
@@ -82,8 +80,7 @@
                 android:background="#FFFFFF"
                 android:gravity="center"
                 android:scaleType="fitCenter"
-                android:text="@string/map_activity_stop_button"></Button>
-<!--                style="?android:attr/buttonBarButtonStyle"/>-->
+                android:text="@string/map_activity_stop_button"/>
 
         </LinearLayout>
 

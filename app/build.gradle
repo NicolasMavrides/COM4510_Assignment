@@ -2,6 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
+        debug {
+            storeFile file('keyStore.jks')
+            storePassword 'com4510iscool'
+            keyAlias = 'com4510'
+            keyPassword 'com4510iscool'
+        }
     }
 
     compileSdkVersion 29
