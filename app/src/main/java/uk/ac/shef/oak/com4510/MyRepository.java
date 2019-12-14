@@ -3,8 +3,8 @@ package uk.ac.shef.oak.com4510;
 import android.app.Application;
 import android.os.AsyncTask;
 
+import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.PhotoDAO;
-import uk.ac.shef.oak.com4510.database.PhotoData;
 import uk.ac.shef.oak.com4510.database.PhotoDatabase;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class MyRepository extends ViewModel {
     /*public void insertTitleDescription(String title, String description) {
         if (!title.isEmpty() && (!description.isEmpty())) {
             // data insertion cannot be done on the UI thread. Use an ASync process!!
-            new InsertIntoDbAsync(mPhotoDao, new PhotoData(title, description), viewModel).execute();
+            new InsertIntoDbAsync(mPhotoDao, new Photo(title, description), viewModel).execute();
         } else viewModel.errorInsertingTitleDescription(title, description, "Tile or Description should not be empty");
     }*/
 
@@ -35,13 +35,13 @@ public class MyRepository extends ViewModel {
      * it gets the data when changed in the db and returns it to the ViewModel
      * @return
      */
-    public LiveData<List<PhotoData>> getPhotoData() {
+    public LiveData<List<Photo>> getPhotoData() {
         return mPhotoDao.retrieveAllData();
     }
 
     /*public void getTitleDescription(String title, String description)
     {
-        new GetFromDbAsync(mPhotoDao, new PhotoData(title, description),viewModel).execute();
+        new GetFromDbAsync(mPhotoDao, new Photo(title, description),viewModel).execute();
 
     }*/
 
@@ -51,20 +51,20 @@ public class MyRepository extends ViewModel {
      */
     /*private static class GetFromDbAsync extends AsyncTask<Void, Void, Void> {
         private final PhotoDAO mPhotoDao;
-        private final PhotoData mPhotoData;
+        private final Photo mPhoto;
         private final ViewModel mviewModel;
 
-        private final ArrayList<PhotoData> m_list_PhotoData = new ArrayList<>();
+        private final ArrayList<Photo> m_list_PhotoData = new ArrayList<>();
 
-        GetFromDbAsync(PhotoDAO dao, PhotoData photoData, ViewModel viewModel) {
+        GetFromDbAsync(PhotoDAO dao, Photo photoData, ViewModel viewModel) {
             mPhotoDao = dao;
-            mPhotoData= photoData;
+            mPhoto= photoData;
             mviewModel= viewModel;
         }
 
         @Override
         protected Void doInBackground(final Void... params) {
-            //mPhotoDao.insert(mPhotoData);
+            //mPhotoDao.insert(mPhoto);
             if(!mPhotoDao.retrieveAllData().isEmpty()) {
 
                 for (int i = 0; i < mPhotoDao.retrieveAllData().size(); i++) {
@@ -93,18 +93,18 @@ public class MyRepository extends ViewModel {
      */
     private static class InsertIntoDbAsync extends AsyncTask<Void, Void, Void> {
         private final PhotoDAO mPhotoDao;
-        private final PhotoData mPhotoData;
+        private final Photo mPhoto;
         private final ViewModel mviewModel;
 
-        InsertIntoDbAsync(PhotoDAO dao, PhotoData photoData, ViewModel viewModel) {
+        InsertIntoDbAsync(PhotoDAO dao, Photo photo, ViewModel viewModel) {
             mPhotoDao = dao;
-            mPhotoData= photoData;
+            mPhoto = photo;
             mviewModel= viewModel;
         }
 
         @Override
         protected Void doInBackground(final Void... params) {
-            mPhotoDao.insert(mPhotoData);
+            mPhotoDao.insert(mPhoto);
             //TODO log
             return null;
         }
@@ -112,7 +112,7 @@ public class MyRepository extends ViewModel {
         /*@Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            mviewModel.titleDescriptionInserted(mPhotoData.getTitle(), mPhotoData.getDescription());
+            mviewModel.titleDescriptionInserted(mPhoto.getTitle(), mPhoto.getDescription());
         }*/
     }
 }

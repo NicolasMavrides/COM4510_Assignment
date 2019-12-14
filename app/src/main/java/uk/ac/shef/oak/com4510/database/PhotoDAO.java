@@ -15,22 +15,22 @@ import androidx.room.Query;
 @Dao
 public interface PhotoDAO {
     @Insert
-    void insertAll(PhotoData... photodata);
+    void insertAll(Photo... photodata);
 
     @Insert
-    void insert(PhotoData photodata);
+    void insert(Photo photodata);
 
     @Delete
-    void delete(PhotoData photoData);
+    void delete(Photo photo);
 
-    @Query("SELECT * FROM PhotoData ORDER BY title ASC")
-    LiveData<List<PhotoData>> retrieveAllData();
+    @Query("SELECT * FROM Photo ORDER BY title ASC")
+    LiveData<List<Photo>> retrieveAllData();
 
-    @Query("SELECT * FROM PhotoData WHERE title = :title")
-    PhotoData retrieveByTitle(String title);
+    @Query("SELECT * FROM Photo WHERE title = :title")
+    Photo retrieveByTitle(String title);
 
     //TODO Other queries
 
     @Delete
-    void deleteAll(PhotoData... photoData);
+    void deleteAll(Photo... photoData);
 }

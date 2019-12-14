@@ -40,6 +40,9 @@ public class HomeFragment extends Fragment {
         myList.add(new ListElement(R.drawable.joe1, "Good Morning",
                 "Just wanted to say hello 1"));
 
+        myList.add(new ListElement(R.drawable.joe1, "Good Morning 2",
+                "Just wanted to say hello again!"));
+
         mAdapter= new HomeAdapter(myList);
         mRecyclerView.setAdapter(mAdapter);
 
