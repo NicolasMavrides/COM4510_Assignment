@@ -1,6 +1,5 @@
 package uk.ac.shef.oak.com4510.ui.newtrip;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;

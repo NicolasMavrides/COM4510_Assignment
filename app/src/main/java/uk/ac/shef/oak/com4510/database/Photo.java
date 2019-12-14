@@ -7,57 +7,65 @@ package uk.ac.shef.oak.com4510.database;
 import android.graphics.Bitmap;
 
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(indices={@Index(value={"title"})})
-public class PhotoData {
+public class Photo {
     @PrimaryKey(autoGenerate = true)
     @androidx.annotation.NonNull
-    private int id=0;
+    private int photo_id=0;
     private String title;
     private String description;
     private String file;
-    //TODO Date and Time
+    private int trip_id;
 
-    @Ignore
-    public Bitmap picture;
-
-    public PhotoData(String title, String description, String file) {
+    public Photo(String title, String description, String file, int trip_id) {
         this.title= title;
         this.description= description;
+        this.file= file;
+        this.trip_id= trip_id;
     }
 
     @androidx.annotation.NonNull
-    public int getId() {
-        return id;
+    public int getPhoto_id() {
+        return photo_id;
     }
-    public void setId(@androidx.annotation.NonNull int id) {
-        this.id = id;
+
+    public void setPhoto_id(int photo_id) {
+        this.photo_id = photo_id;
     }
+
     public String getTitle() {
         return title;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
+
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
-    public Bitmap getPicture() {
-        return picture;
-    }
-    public void setPicture(Bitmap picture) {
-        this.picture = picture;
-    }
+
     public String getFile() {
         return file;
     }
+
     public void setFile(String file) {
         this.file = file;
     }
+
+    public int getTrip_id() {
+        return trip_id;
+    }
+
+    public void setTrip_id(int trip_id) {
+        this.trip_id = trip_id;
+    }
+
 }

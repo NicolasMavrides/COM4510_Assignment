@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -73,6 +74,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 
     // View Related Variables
     private String mdate;
+    private String mtrip;
     private MapView mapView;
     private Button mButtonStart, mButtonPause, mButtonStop;
 
@@ -135,10 +137,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         accelerometer= new Accelerometer(this, barometer);
 
         Bundle b = getIntent().getExtras();
-        //Date from b.date
         if(b != null) {
-            getSupportActionBar().setTitle(b.getString("name"));
+            mtrip = b.getString("name");
             mdate = b.getString("date");
+            getSupportActionBar().setTitle(mtrip);
             Log.i("date: ", mdate);
             Log.i("route_name", b.getString("name"));
         }
@@ -169,6 +171,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                     StartTime = SystemClock.uptimeMillis();
                     handler.postDelayed(runnable, 0);
                 }
+
             }
         });
 
@@ -204,6 +207,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             @Override
             public void onClick(View v) {
                 mButtonStop.setEnabled(false);
+                timer.setText(R.string.timer_text);
                 // show pop-up for 'are you sure?'
                 // if accepted, then stop updates
                 // then show activity with results - approximate distance moved, time taken, number of snapshots
@@ -211,6 +215,17 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             }
         });
         mButtonStop.setEnabled(true);
+
+        FloatingActionButton addPhoto = findViewById(R.id.add_photo);
+        addPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NewImageActivity.class);
+                intent.putExtra("name", mtrip);
+                intent.putExtra("date", mdate);
+                getActivity().startActivity(intent);
+            }
+        });
 
         initLocations();
     }

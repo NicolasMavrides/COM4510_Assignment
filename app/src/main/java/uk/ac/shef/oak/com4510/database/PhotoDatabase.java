@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@androidx.room.Database(entities = {PhotoData.class}, version = 1, exportSchema = false)
+@androidx.room.Database(entities = {Photo.class}, version = 1, exportSchema = false)
 public abstract class PhotoDatabase extends RoomDatabase {
     public abstract PhotoDAO photoDao();
 
@@ -45,5 +45,4 @@ public abstract class PhotoDatabase extends RoomDatabase {
             // do any init operation about any initialisation here
         }
     };
-
 }

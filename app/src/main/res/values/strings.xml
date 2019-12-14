@@ -14,6 +14,7 @@
     <string name="action_create_trip">Create Trip</string>
 
     <string name="title">Trip Name</string>
+    <string name="photo_name">Photo Name</string>
     <string name="description">Description</string>
 
     <string name="timer_text">00:00:00</string>

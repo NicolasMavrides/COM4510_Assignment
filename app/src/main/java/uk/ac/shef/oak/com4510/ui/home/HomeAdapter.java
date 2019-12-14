@@ -6,10 +6,7 @@ package uk.ac.shef.oak.com4510.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.Image;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +15,6 @@ import android.widget.TextView;
 
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.ShowImageActivity;
-import uk.ac.shef.oak.com4510.ui.gallery.ImageElement;
 
 import java.util.List;
 
