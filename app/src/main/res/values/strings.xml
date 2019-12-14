@@ -17,4 +17,8 @@
     <string name="description">Description</string>
 
     <string name="timer_text">00:00:00</string>
+
+    <string name="map_activity_start_button">Start</string>
+    <string name="map_activity_pause_button">Pause</string>
+    <string name="map_activity_stop_button">Stop</string>
 </resources>

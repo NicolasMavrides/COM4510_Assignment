@@ -1,5 +1,6 @@
 package uk.ac.shef.oak.com4510.ui.newtrip;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -52,12 +53,13 @@ public class NewtripFragment extends Fragment {
 
                 AutoCompleteTextView titleView = root.findViewById(R.id.route_name);
                 String title = titleView.getText().toString();
+                Log.i("title", title);
                 /*AutoCompleteTextView descriptionView = view.findViewById(R.id.description);
                 String description = descriptionView.getText().toString();*/
 
                 // hiding the keyboard after button click
                 // TODO - when no trip name is entered
-                if (title != null) {
+                if (title.replaceAll("\\s+","").length() != 0) { // makes sure that title is not empty
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(titleView.getWindowToken(), 0);
                     Log.i("title: ", title);
@@ -67,7 +69,8 @@ public class NewtripFragment extends Fragment {
                     getActivity().startActivity(intent);
                 }
                 else {
-                    Snackbar.make(titleView, "Please enter a trip name", Snackbar.LENGTH_LONG)
+                    // turn into public func related to activity
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), "Please enter a trip name", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
             }
