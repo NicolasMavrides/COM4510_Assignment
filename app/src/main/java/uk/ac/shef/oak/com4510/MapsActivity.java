@@ -105,9 +105,12 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private String mLastUpdateTime;
 
     // Sensor Related Variables
-    private Barometer barometer;
-    private Thermometer thermometer;
-    private Accelerometer accelerometer;
+    private static Barometer barometer;
+    private static Thermometer thermometer;
+    private static Accelerometer accelerometer;
+    static Accelerometer getAccelerometer(){return accelerometer;}
+    static Barometer getBarometer(){return barometer;}
+    static Thermometer getThermometer(){return thermometer;}
 
     // Result tracking variables
 //    private List<Double> lat_list, lng_list; // results storing for now
@@ -134,7 +137,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         // Initialize Sensors
         barometer= new Barometer(this);
         thermometer = new Thermometer(this);
-        accelerometer= new Accelerometer(this, barometer);
+        accelerometer= new Accelerometer(this, barometer, thermometer);
 
         Bundle b = getIntent().getExtras();
         if(b != null) {

@@ -12,7 +12,6 @@ import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.util.Log;
 
-
 /*
  * Copyright (c) 2019. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
@@ -30,6 +29,14 @@ public class Thermometer {
     private long lastReportTime = 0;
     private boolean started;
     private Accelerometer accelerometer;
+    private float current_temperature;
+    /**
+     * returns current temperature
+     */
+    public float getCurrentTemperature(){
+        return this.current_temperature;
+    }
+
     /**
      * this is used to stop the Thermometer if we have not seen any movement in the last 20 seconds
      */
@@ -39,7 +46,7 @@ public class Thermometer {
     public Thermometer(Context context) {
         // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
         timePhoneWasLastRebooted = System.currentTimeMillis() - SystemClock.elapsedRealtime();
-
+        current_temperature = 0;
         mSamplingRateNano = (long) (Thermometer_READING_FREQUENCY) * 1000000;
         mSamplingRateInMSecs = (long) Thermometer_READING_FREQUENCY;
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -66,10 +73,10 @@ public class Thermometer {
                     // misbehave and start sending data very quickly
                     if (diff >= mSamplingRateNano) {
                         long actualTimeInMseconds = timePhoneWasLastRebooted + (long) (event.timestamp / 1000000.0);
-                        float TemperatureValue = event.values[0];
+                        current_temperature = event.values[0];
                         int accuracy = event.accuracy;
 
-                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current Temperature: " + TemperatureValue + "with accuract: " + accuracy);
+                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current Temperature: " + current_temperature + "with accuract: " + accuracy);
                         lastReportTime = event.timestamp;
                         // if we have not see any movement on the side of the accelerometer, let's stop
                         long timeLag= actualTimeInMseconds-accelerometer.getLastReportTime();
@@ -142,4 +149,6 @@ public class Thermometer {
     public void setStarted(boolean started) {
         this.started = started;
     }
+
+
 }

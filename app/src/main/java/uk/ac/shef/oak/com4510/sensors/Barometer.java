@@ -30,6 +30,14 @@ public class Barometer {
     private long lastReportTime = 0;
     private boolean started;
     private Accelerometer accelerometer;
+    private float current_pressure;
+    /**
+     * returns current temperature
+     */
+    public float getCurrentPressure(){
+        return current_pressure;
+    }
+
     /**
      * this is used to stop the barometer if we have not seen any movement in the last 20 seconds
      */
@@ -44,6 +52,7 @@ public class Barometer {
         mSamplingRateInMSecs = (long) BAROMETER_READING_FREQUENCY;
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mBarometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        current_pressure = 0;
         initBarometerListener();
     }
 
@@ -66,10 +75,10 @@ public class Barometer {
                     // misbehave and start sending data very quickly
                     if (diff >= mSamplingRateNano) {
                         long actualTimeInMseconds = timePhoneWasLastRebooted + (long) (event.timestamp / 1000000.0);
-                        float pressureValue = event.values[0];
+                        current_pressure = event.values[0];
                         int accuracy = event.accuracy;
 
-                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current barometric pressure: " + pressureValue + "with accuract: " + accuracy);
+                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current barometric pressure: " + current_pressure + "with accuracy: " + accuracy);
                         lastReportTime = event.timestamp;
                         // if we have not see any movement on the side of the accelerometer, let's stop
                         long timeLag= actualTimeInMseconds-accelerometer.getLastReportTime();

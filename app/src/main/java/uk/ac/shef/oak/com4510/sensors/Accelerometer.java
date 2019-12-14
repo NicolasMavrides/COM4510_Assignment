@@ -21,16 +21,18 @@ public class Accelerometer {
     private long timePhoneWasLastRebooted = 0;
     private long lastReportTime = 0;
     private Barometer barometer;
+    private Thermometer thermometer;
     private float lastX=0;
     private float lastY=0;
     private float lastZ=0;
 
 
 
-    public Accelerometer(Context context, Barometer barometer) {
+    public Accelerometer(Context context, Barometer barometer, Thermometer thermometer) {
         // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
         timePhoneWasLastRebooted = System.currentTimeMillis() - SystemClock.elapsedRealtime();
         this.barometer= barometer;
+        this.thermometer = thermometer;
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         initAccelerometerListener();
@@ -63,6 +65,8 @@ public class Accelerometer {
                         Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": significant motion detected - x: " +deltaX+ ", y: "+deltaY+", z:"+deltaZ);
                         if (!barometer.isStarted())
                             barometer.startSensingPressure(Accelerometer.this);
+                        if (!thermometer.isStarted())
+                            thermometer.startSensingTemperature(Accelerometer.this);
                         setLastReportTime(actualTimeInMseconds);
                     }
                     lastX = x;
@@ -105,7 +109,7 @@ public class Accelerometer {
 
 
     /**
-     * this stops the barometer
+     * this stops the barometer and thermometer
      */
     public void stopAccelerometer() {
         if (standardAccelerometerAvailable()) {
@@ -118,6 +122,7 @@ public class Accelerometer {
         }
         // remember to stop the barometer
         barometer.stopBarometer();
+        thermometer.stopThermometer();
     }
 
 
