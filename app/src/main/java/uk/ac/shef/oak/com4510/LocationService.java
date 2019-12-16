@@ -16,11 +16,18 @@ import java.util.Date;
 import java.util.List;
 
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
+import uk.ac.shef.oak.com4510.sensors.Barometer;
+import uk.ac.shef.oak.com4510.sensors.Thermometer;
 
 public class LocationService extends IntentService {
     private Location mCurrentLocation;
     private String mLastUpdateTime;
+
+    private Accelerometer accelerometer;
+    private Barometer barometer;
+    private Thermometer thermometer;
     private Float mCurrentTemp, mCurrentPress;
+
 
     public LocationService(String name) {
         super(name);
@@ -28,6 +35,24 @@ public class LocationService extends IntentService {
 
     public LocationService() {
         super("Location Intent");
+    }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        barometer = new Barometer(this);
+        thermometer = new Thermometer(this);
+        accelerometer = new Accelerometer(this, barometer, thermometer);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        accelerometer.startAccelerometerRecording();
+        barometer.startSensingPressure(accelerometer);
+        thermometer.startSensingTemperature(accelerometer);
+
+        return START_STICKY;
     }
 
     /**
@@ -46,8 +71,8 @@ public class LocationService extends IntentService {
                     Log.i("New Location", "Current location: " + location);
                     mCurrentLocation = location;
                     mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-                    mCurrentPress = MapsActivity.getBarometer().getCurrentPressure();
-                    mCurrentTemp = MapsActivity.getThermometer().getCurrentTemperature();
+                    mCurrentPress = barometer.getCurrentPressure();
+                    mCurrentTemp = thermometer.getCurrentTemperature();
                     // Log to make sure that the service is working
                     Log.i("MAP", "new location " + mCurrentLocation.toString());
                     Log.i("Pressure", "new pressure" + mCurrentPress.toString());

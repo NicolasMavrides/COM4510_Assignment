@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="uk.ac.shef.oak.com451">
     <!--
      The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
      Google Maps Android API v2, but you must specify either coarse or fine
      location permissions for the 'MyLocation' functionality.
     -->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -40,8 +43,37 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <service android:name="uk.ac.shef.oak.com4510.LocationService" />
+        <service android:name="uk.ac.shef.oak.com4510.restarter.JobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name="uk.ac.shef.oak.com4510.LocationService"
+            android:clearTaskOnLaunch="true"
+            android:enabled="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            />
+
+
+        <receiver
+            android:name="uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="StartMyServiceAtBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="uk.ac.shef.oak.activity_recognition.sensor_service.RestartSensor"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+
     </application>
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_LAUNCH_BROADCASTS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />

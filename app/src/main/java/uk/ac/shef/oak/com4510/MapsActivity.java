@@ -76,7 +76,9 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private String mdate;
     private String mtrip;
     private MapView mapView;
-    private Button mButtonStart, mButtonPause, mButtonStop;
+    private Button mButtonStart;
+    private Button mButtonPause;
+    private Button mButtonStop;
 
     // Google Maps Related Variables
     private static GoogleMap mMap;
@@ -104,18 +106,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private Location mCurrentLocation;
     private String mLastUpdateTime;
 
-    // Sensor Related Variables
-    private static Barometer barometer;
-    private static Thermometer thermometer;
-    private static Accelerometer accelerometer;
-    static Accelerometer getAccelerometer(){return accelerometer;}
-    static Barometer getBarometer(){return barometer;}
-    static Thermometer getThermometer(){return thermometer;}
-
-    // Result tracking variables
-//    private List<Double> lat_list, lng_list; // results storing for now
-//    private List<String> time_list;
-
     //////////////////////////////////////////////////
     //                                              //
     //                Initialization                //
@@ -134,10 +124,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 //        time_list = new LinkedList();
         start_trip = true;
 
-        // Initialize Sensors
-        barometer= new Barometer(this);
-        thermometer = new Thermometer(this);
-        accelerometer= new Accelerometer(this, barometer, thermometer);
 
         Bundle b = getIntent().getExtras();
         if(b != null) {
@@ -163,9 +149,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                 if (mButtonStart.isEnabled()) {
                     // start sensing
                     startLocationUpdates(getApplicationContext());
-                    accelerometer.startAccelerometerRecording();
-                    barometer.startSensingPressure(accelerometer);
-                    thermometer.startSensingTemperature(accelerometer);
                     if (mButtonPause != null)
                         mButtonPause.setEnabled(true);
                     mButtonStart.setEnabled(false);
@@ -186,9 +169,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             public void onClick(View v) {
                 if (mButtonPause.isEnabled()) {
                     stopLocationUpdates();
-                    accelerometer.stopAccelerometer();
-                    barometer.stopBarometer();
-                    thermometer.stopThermometer();
                     if (mButtonStart != null)
                         mButtonStart.setEnabled(true);
                     mButtonPause.setEnabled(false);
@@ -487,6 +467,20 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         Log.i ("isMyServiceRunning?", false+"");
         return false;
     }
+//
+//    static boolean isPausedOrStopped(){
+//        if(!mButtonPause.isEnabled() || !mButtonStop.isEnabled()){
+//            return false;
+//        }
+//        return true;
+//    }
+//
+//    static boolean buttonsE(){
+//        if(!mButtonPause.isEnabled() || !mButtonStop.isEnabled()){
+//            return false;
+//        }
+//        return true;
+//    }
 
 }
 
