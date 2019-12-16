@@ -1,8 +1,10 @@
 package uk.ac.shef.oak.com4510;
 
 import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.android.gms.location.LocationResult;
@@ -15,19 +17,24 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
 import uk.ac.shef.oak.com4510.sensors.Barometer;
 import uk.ac.shef.oak.com4510.sensors.Thermometer;
+import uk.ac.shef.oak.com4510.utilities.Notification;
 
 public class LocationService extends IntentService {
     private Location mCurrentLocation;
     private String mLastUpdateTime;
-
     private Accelerometer accelerometer;
     private Barometer barometer;
     private Thermometer thermometer;
     private Float mCurrentTemp, mCurrentPress;
 
+
+    protected static final int NOTIFICATION_ID = 1001;
+    private static String TAG = "LocationService";
+    private static Service mCurrentService;
 
     public LocationService(String name) {
         super(name);
@@ -43,6 +50,10 @@ public class LocationService extends IntentService {
         barometer = new Barometer(this);
         thermometer = new Thermometer(this);
         accelerometer = new Accelerometer(this, barometer, thermometer);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            restartForeground();
+        }
+        mCurrentService = this;
     }
 
     @Override
@@ -115,4 +126,25 @@ public class LocationService extends IntentService {
         }
     }
 
+
+    /**
+     * it starts the process in foreground. Normally this is done when screen goes off
+     * THIS IS REQUIRED IN ANDROID 8 :
+     * "The system allows apps to call Context.startForegroundService()
+     * even while the app is in the background.
+     * However, the app must call that service's startForeground() method within five seconds
+     * after the service is created."
+     */
+    public void restartForeground() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.i(TAG, "restarting foreground");
+            try {
+                Notification notification = new Notification();
+                startForeground(NOTIFICATION_ID, notification.setNotification(this, "My Routes", "Currently Tracking.", R.drawable.ic_sleep));
+                Log.i(TAG, "restarting foreground successful");
+            } catch (Exception e) {
+                Log.e(TAG, "Error in notification " + e.getMessage());
+            }
+        }
+    }
 }
