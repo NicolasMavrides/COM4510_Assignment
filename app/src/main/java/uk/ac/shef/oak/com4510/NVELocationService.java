@@ -211,7 +211,7 @@ public class NVELocationService extends Service {
         super.onDestroy();
         Log.i(TAG, "onDestroy called");
         // We don't want to keep the service running if it was destroyed on pause or on stop
-        SharedPreferences prefs= this.getSharedPreferences("uk.ac.shef.oak.ServiceRunning", this.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
         tracking_mode = prefs.getString("tracking", "DEFAULT");
 //        Log.i("Shared Preferences", tracking_mode);
         if (tracking_mode.equals("started")) {
@@ -235,7 +235,7 @@ public class NVELocationService extends Service {
         super.onTaskRemoved(rootIntent);
         Log.i(TAG, "onTaskRemoved called");
         // restart the never ending service if tracking was active
-        SharedPreferences prefs= this.getSharedPreferences("uk.ac.shef.oak.ServiceRunning", this.MODE_PRIVATE);
+        SharedPreferences prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
         tracking_mode = prefs.getString("tracking", "DEFAULT");
 //        Log.i("Shared Preferences", tracking_mode);
         if (tracking_mode.equals("started")) {

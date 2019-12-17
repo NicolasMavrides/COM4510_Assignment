@@ -109,7 +109,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private FusedLocationProviderClient mFusedLocationClient;
     private Location mCurrentLocation;
     private String mLastUpdateTime;
-
+    private SharedPreferences prefs;
     private ProcessMainClass bck;
 
     //////////////////////////////////////////////////
@@ -162,8 +162,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             }
         });
 
-        mButtonStart.setEnabled(true);
-
         mButtonPause = findViewById(R.id.button_pause);
         mButtonPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,8 +180,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             }
         });
 
-        mButtonPause.setEnabled(false);
-
         // Stop Button Initialization
         mButtonStop = (Button) findViewById(R.id.button_stop);
         // if Stop is clicked, ask the user if they're sure they want to stop
@@ -191,16 +187,16 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         mButtonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mButtonStop.setEnabled(false);
-                timer.setText(R.string.timer_text);
+                stopNVELocationUpdates();
                 //TODO
                 // show pop-up for 'are you sure?'
                 // if accepted, then stop updates
                 // then show activity with results - approximate distance moved, time taken, number of snapshots
                 // average temp, average pressure, maybe select random snaps if present?
+                mButtonStop.setEnabled(false);
+                timer.setText(R.string.timer_text);
             }
         });
-        mButtonStop.setEnabled(true);
 
         FloatingActionButton addPhoto = findViewById(R.id.add_photo);
         addPhoto.setOnClickListener(new View.OnClickListener() {
@@ -213,9 +209,20 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             }
         });
 
+        // button enabling
+        prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+        if (prefs.getString("tracking", "DEFAULT").equals("tracking")){
+            mButtonStart.setEnabled(false);
+            mButtonPause.setEnabled(true);
+        }
+        else {
+            mButtonStart.setEnabled(true);
+            mButtonPause.setEnabled(false);
+        }
+        mButtonStop.setEnabled(true);
+
         // saves the trip name and date
         try {
-            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("trip_name", mtrip);
             editor.putString("trip_date", mdate);
