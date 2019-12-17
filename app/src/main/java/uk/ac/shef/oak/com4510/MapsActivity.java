@@ -12,9 +12,11 @@ import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -50,6 +52,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import uk.ac.shef.oak.com451.R;
+import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
 import uk.ac.shef.oak.com4510.sensors.Barometer;
 import uk.ac.shef.oak.com4510.sensors.Thermometer;
@@ -107,6 +110,8 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private Location mCurrentLocation;
     private String mLastUpdateTime;
 
+    private ProcessMainClass bck;
+
     //////////////////////////////////////////////////
     //                                              //
     //                Initialization                //
@@ -143,7 +148,8 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             public void onClick(View v) {
                 if (mButtonStart.isEnabled()) {
                     // start sensing
-                    startLocationUpdates(getApplicationContext());
+//                    startLocationUpdates(getApplicationContext());
+                    startNVELocationUpdates(getApplicationContext());
                     if (mButtonPause != null)
                         mButtonPause.setEnabled(true);
                     mButtonStart.setEnabled(false);
@@ -163,7 +169,8 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             @Override
             public void onClick(View v) {
                 if (mButtonPause.isEnabled()) {
-                    stopLocationUpdates();
+//                    stopLocationUpdates();
+                    pauseNVELocationUpdates();
                     if (mButtonStart != null)
                         mButtonStart.setEnabled(true);
                     mButtonPause.setEnabled(false);
@@ -186,6 +193,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             public void onClick(View v) {
                 mButtonStop.setEnabled(false);
                 timer.setText(R.string.timer_text);
+                //TODO
                 // show pop-up for 'are you sure?'
                 // if accepted, then stop updates
                 // then show activity with results - approximate distance moved, time taken, number of snapshots
@@ -205,6 +213,18 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             }
         });
 
+        // saves the trip name and date
+        try {
+            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("trip_name", mtrip);
+            editor.putString("trip_date", mdate);
+            editor.apply();
+//            Log.i("Shared Preferences", "Working");
+        } catch (NullPointerException e) {
+            Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
+        }
+
         initLocations();
     }
 
@@ -217,12 +237,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     @Override
     protected void onResume() {
         super.onResume();
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
     }
 
     // track and show time
@@ -352,6 +366,71 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         mFusedLocationClient.removeLocationUpdates(mLocationPendingIntent);
     }
 
+    /**
+     * Starts Never Ending Background Service which gets the Location, Barometric Pressure and Temperature Updates
+     */
+    private void startNVELocationUpdates(Context context) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // tells the app that we are currently tracking data
+            try {
+                SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("tracking", "started");
+                editor.apply();
+//            Log.i("Shared Preferences", "Working");
+            } catch (NullPointerException e) {
+                Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                RestartServiceBroadcastReceiver.scheduleJob(getApplicationContext());
+            } else {
+                bck = new ProcessMainClass();
+                bck.launchService(getApplicationContext());
+            }
+        }
+    }
+
+    /**
+     * It stops the updates of the never ending background service.
+     */
+    private void stopNVELocationUpdates(){
+        bck.stopService(getApplicationContext());
+        // adds to the shared preferences that we have currently stopped tracking the location
+        // that way, when the service is destroyed, it will know that it shouldn't restart itself
+        try {
+            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("tracking", "stopped");
+            editor.apply();
+//            Log.i("Shared Preferences", "Working");
+        } catch (NullPointerException e) {
+            Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
+        }
+    }
+
+
+    /**
+     * It pauses the updates of the never ending background service.
+     */
+    private void pauseNVELocationUpdates(){
+        bck = new ProcessMainClass();
+        bck.stopService(getApplicationContext());
+        // adds to the shared preferences that we have currently stopped tracking the location
+        // that way, when the service is destroyed, it will know that it shouldn't restart itself
+        // but the app will know that tracking is paused and not stopped
+        try {
+            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("tracking", "paused");
+            editor.apply();
+//            Log.i("Shared Preferences", "Working");
+        } catch (NullPointerException e) {
+            Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
+        }
+    }
+
+
     // Location callback gets the updates
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
@@ -478,6 +557,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         Log.i ("isMyServiceRunning?", false+"");
         return false;
     }
+
 //
 //    static boolean isPausedOrStopped(){
 //        if(!mButtonPause.isEnabled() || !mButtonStop.isEnabled()){

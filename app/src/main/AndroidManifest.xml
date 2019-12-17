@@ -48,12 +48,16 @@
 
         <service
             android:name="uk.ac.shef.oak.com4510.LocationService"
+            android:enabled="true"
+            />
+
+        <service
+            android:name="uk.ac.shef.oak.com4510.NVELocationService"
             android:clearTaskOnLaunch="true"
             android:enabled="true"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             />
-
 
         <receiver
             android:name="uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver"
