@@ -24,6 +24,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
@@ -42,8 +43,11 @@ public class NewImageActivity extends AppCompatActivity {
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 100;
     private String mdate;
     private String mtrip;
+    private String title_str;
+    private String snipp_str;
     private Activity activity;
     private ImageView imagePreview;
+    private List<LatLng> polyline_points;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +102,22 @@ public class NewImageActivity extends AppCompatActivity {
                 // TODO - when no trip name is entered
                 if ((name.replaceAll("\\s+","").length() != 0) || (description.replaceAll("\\s+","").length() != 0)) {
                     //TODO Save button - add photo to DB
+
+                    // Adds Marker to Map on saved spot
+                    if (MapsActivity.getMap() != null) {
+                        polyline_points = MapsActivity.getPolyline().getPoints();
+                        title_str = "No Title";
+                        if (name.replaceAll("\\s+","").length() != 0){
+                            title_str = name;
+                        }
+                        // could refactor to add stuff like temperature/ barometric press at location
+                        snipp_str = "No Description";
+                        if (description.replaceAll("\\s+","").length() != 0){
+                            snipp_str += description;
+                        }
+                        MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
+                                MapsActivity.getMap(), title_str, true, 14.0f, snipp_str);
+                    }
                 }
                 else {
                     // turn into public func related to activity

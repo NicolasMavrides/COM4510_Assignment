@@ -53,6 +53,7 @@ import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
 import uk.ac.shef.oak.com4510.sensors.Barometer;
 import uk.ac.shef.oak.com4510.sensors.Thermometer;
+import uk.ac.shef.oak.com4510.utilities.Notification;
 
 public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback {
 
@@ -117,13 +118,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setActivity(this);
-
-        // Initialize result tracking lists
-//        lat_list = new LinkedList();
-//        lng_list = new LinkedList();
-//        time_list = new LinkedList();
         start_trip = true;
-
 
         Bundle b = getIntent().getExtras();
         if(b != null) {
@@ -434,7 +429,18 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * @param move_camera - if true sets camera on marker
      */
     static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera) {
-        setMarker(pos, map, title, move_camera, -1);
+        setMarker(pos, map, title, move_camera, -1, "");
+    }
+
+    /**
+     * Sets Marker on Map
+     * @param pos  - LatLong Position on where to put the marker
+     * @param map - map on where to put the marker
+     * @param title - title to add to marker
+     * @param move_camera - if true sets camera on marker
+     */
+    static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera, float zoom) {
+        setMarker(pos, map, title, move_camera, zoom, "");
     }
 
     /**
@@ -445,8 +451,13 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * @param move_camera - if true sets camera on marker
      * @param zoom - zoom of google maps view if move camera is set to true
      */
-    static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera, float zoom){
-        map.addMarker(new MarkerOptions().position(pos).title(title));
+    static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera, float zoom, String snippet){
+        if (snippet.replaceAll("\\s+","").length() != 0) {
+            map.addMarker(new MarkerOptions().position(pos).title(title).snippet(snippet));
+        }
+        else{
+            map.addMarker(new MarkerOptions().position(pos).title(title));
+        }
         if (move_camera) {
             if (zoom >= 0) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, zoom));

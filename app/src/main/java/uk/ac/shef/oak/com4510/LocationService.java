@@ -78,9 +78,9 @@ public class LocationService extends IntentService {
 
         // make sure you call the startForeground on onStartCommand because otherwise
         // when we hide the notification on onScreen it will not restart in Android 6 and 7
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            restartForeground();
-        }
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+//            restartForeground();
+//        }
 
         return START_STICKY;
     }
@@ -186,18 +186,27 @@ public class LocationService extends IntentService {
 //        if (MapsActivity.buttonsExist()) {
 //            if (!MapsActivity.isPausedOrStopped()) {
         // restart the never ending service
-        Intent broadcastIntent = new Intent(Globals.RESTART_INTENT);
-        sendBroadcast(broadcastIntent);
+//        new	java.util.Timer().schedule(
+//                new	java.util.TimerTask()	{
+//                    @Override
+//                    public void	run()	{
+//                        //	your	code	here
+//                    }
+//                },
+//                2000
+//        );
+//        Intent broadcastIntent = new Intent(Globals.RESTART_INTENT);
+//        sendBroadcast(broadcastIntent);
         // adds to the shared preferences that we are currently tracking the location
-        try {
-            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("tracking", true);
-            editor.apply();
-            Log.i("Shared Preferences", "Working");
-        } catch (NullPointerException e) {
-            Log.e(TAG, "error saving: are you testing?" + e.getMessage());
-        }
+//        try {
+//            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+//            SharedPreferences.Editor editor = prefs.edit();
+//            editor.putBoolean("tracking", true);
+//            editor.apply();
+//            Log.i("Shared Preferences", "Working");
+//        } catch (NullPointerException e) {
+//            Log.e(TAG, "error saving: are you testing?" + e.getMessage());
+//        }
 //            }
 //        }
     }
