@@ -113,7 +113,7 @@ public class NewImageActivity extends AppCompatActivity {
                         // could refactor to add stuff like temperature/ barometric press at location
                         snipp_str = "No Description";
                         if (description.replaceAll("\\s+","").length() != 0){
-                            snipp_str += description;
+                            snipp_str = description;
                         }
                         MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
                                 MapsActivity.getMap(), title_str, true, 14.0f, snipp_str);
