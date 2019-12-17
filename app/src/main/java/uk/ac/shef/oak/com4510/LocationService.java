@@ -3,9 +3,13 @@ package uk.ac.shef.oak.com4510;
 import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Build;
+import android.os.IBinder;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.maps.CameraUpdate;
@@ -59,9 +63,24 @@ public class LocationService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        Log.d(TAG, "restarting Service !!");
+
+        // it has been killed by Android and now it is restarted. We must make sure to have reinitialised everything
+        if (intent == null) {
+            ProcessMainClass bck = new ProcessMainClass();
+            bck.launchService(this);
+        }
+
+
         accelerometer.startAccelerometerRecording();
         barometer.startSensingPressure(accelerometer);
         thermometer.startSensingTemperature(accelerometer);
+
+        // make sure you call the startForeground on onStartCommand because otherwise
+        // when we hide the notification on onScreen it will not restart in Android 6 and 7
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            restartForeground();
+        }
 
         return START_STICKY;
     }
@@ -126,6 +145,18 @@ public class LocationService extends IntentService {
         }
     }
 
+    //////////////////////////////////////////////////
+    //                                              //
+    //          Background Process Functions        //
+    //                                              //
+    //////////////////////////////////////////////////
+
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     /**
      * it starts the process in foreground. Normally this is done when screen goes off
@@ -146,5 +177,43 @@ public class LocationService extends IntentService {
                 Log.e(TAG, "Error in notification " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy called");
+//        if (MapsActivity.buttonsExist()) {
+//            if (!MapsActivity.isPausedOrStopped()) {
+        // restart the never ending service
+        Intent broadcastIntent = new Intent(Globals.RESTART_INTENT);
+        sendBroadcast(broadcastIntent);
+        // adds to the shared preferences that we are currently tracking the location
+        try {
+            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("tracking", true);
+            editor.apply();
+            Log.i("Shared Preferences", "Working");
+        } catch (NullPointerException e) {
+            Log.e(TAG, "error saving: are you testing?" + e.getMessage());
+        }
+//            }
+//        }
+    }
+
+
+    /**
+     * this is called when the process is killed by Android
+     *
+     * @param rootIntent
+     */
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        Log.i(TAG, "onTaskRemoved called");
+        // restart the never ending service
+        Intent broadcastIntent = new Intent(Globals.RESTART_INTENT);
+        sendBroadcast(broadcastIntent);
     }
 }
