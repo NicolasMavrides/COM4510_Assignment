@@ -222,6 +222,7 @@ public class NVELocationService extends Service {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             accelerometer.stopAccelerometer();
         }
+        // TODO if stopped then store data in db
     }
 
 
@@ -246,5 +247,6 @@ public class NVELocationService extends Service {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             accelerometer.stopAccelerometer();
         }
+        // TODO if stopped then store data in db
     }
 }

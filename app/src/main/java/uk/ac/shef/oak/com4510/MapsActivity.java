@@ -9,6 +9,7 @@ package uk.ac.shef.oak.com4510;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -51,14 +52,17 @@ import java.util.Date;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
+
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
 import uk.ac.shef.oak.com4510.sensors.Barometer;
 import uk.ac.shef.oak.com4510.sensors.Thermometer;
+import uk.ac.shef.oak.com4510.ui.newtrip.StoptripDialogFragment;
 import uk.ac.shef.oak.com4510.utilities.Notification;
 
-public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
 
     //////////////////////////////////////////////////
     //                                              //
@@ -187,14 +191,8 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         mButtonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopNVELocationUpdates();
-                //TODO
-                // show pop-up for 'are you sure?'
-                // if accepted, then stop updates
-                // then show activity with results - approximate distance moved, time taken, number of snapshots
-                // average temp, average pressure, maybe select random snaps if present?
-                mButtonStop.setEnabled(false);
-                timer.setText(R.string.timer_text);
+                DialogFragment stopDialog = new StoptripDialogFragment();
+                stopDialog.show(getSupportFragmentManager(), "StoptripDialogFragment");
             }
         });
 
@@ -563,6 +561,23 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         }
         Log.i ("isMyServiceRunning?", false+"");
         return false;
+    }
+
+    // stop dialog fragment return
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        if (mButtonStop!=null){ // just making sure that the stop button exists - not necessary
+            if (prefs.getString("tracking", "DEFAULT").equals("tracking")) {
+                stopNVELocationUpdates();
+            }
+            mButtonStop.setEnabled(false);
+            // TODO endTrip Activity
+        }
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        // no action taken, carry on
     }
 
 //

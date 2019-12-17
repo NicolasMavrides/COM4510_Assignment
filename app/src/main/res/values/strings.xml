@@ -22,4 +22,9 @@
     <string name="map_activity_start_button">Start</string>
     <string name="map_activity_pause_button">Pause</string>
     <string name="map_activity_stop_button">Stop</string>
+
+    <string name="dialog_stoptrip">Reached the End of the Trip?</string>
+    <string name="dialog_stop">End Trip</string>
+    <string name="dialog_cancel">Cancel</string>
+
 </resources>
