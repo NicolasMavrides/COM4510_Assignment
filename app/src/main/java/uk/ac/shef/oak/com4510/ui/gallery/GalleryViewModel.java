@@ -14,7 +14,7 @@ public class GalleryViewModel extends AndroidViewModel {
     public GalleryViewModel(Application application) {
         super(application);
         // creation and connection to the Repository
-        mRepository = new MyRepository(application, this);
+        mRepository = new MyRepository(application);
     }
     //mText = new MutableLiveData<>();
     //mText.setValue("This is home fragment");

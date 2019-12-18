@@ -3,116 +3,194 @@ package uk.ac.shef.oak.com4510;
 import android.app.Application;
 import android.os.AsyncTask;
 
+import uk.ac.shef.oak.com4510.database.AppDatabase;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.PhotoDAO;
-import uk.ac.shef.oak.com4510.database.PhotoDatabase;
-
+import uk.ac.shef.oak.com4510.database.Trip;
+import uk.ac.shef.oak.com4510.database.TripDAO;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.MutableLiveData;
 
-public class MyRepository extends ViewModel {
-    private final PhotoDAO mPhotoDao;
-    ViewModel viewModel;
+public class MyRepository {
 
-    public MyRepository(Application application, ViewModel viewModel) {
-        PhotoDatabase db = PhotoDatabase.getDatabase(application);
-        mPhotoDao = db.photoDao();
+    private MutableLiveData<List<Trip>> tripsList = new MutableLiveData<>();
+    private LiveData<List<Trip>> allTrips;
+    private TripDAO tripDao;
 
-        this.viewModel = viewModel;
+    private MutableLiveData<List<Photo>> photosList = new MutableLiveData<>();
+    private LiveData<List<Photo>> allPhotos;
+    private PhotoDAO photoDao;
+
+    public MyRepository(Application application) {
+        AppDatabase db;
+        db = AppDatabase.getDatabase(application);
+        tripDao = db.tripDao();
+        allTrips = tripDao.retrieveAllTrips();
+        photoDao = db.photoDao();
+        allPhotos = photoDao.retrieveAllPhotos();
     }
 
-    /*public void insertTitleDescription(String title, String description) {
-        if (!title.isEmpty() && (!description.isEmpty())) {
-            // data insertion cannot be done on the UI thread. Use an ASync process!!
-            new InsertIntoDbAsync(mPhotoDao, new Photo(title, description), viewModel).execute();
-        } else viewModel.errorInsertingTitleDescription(title, description, "Tile or Description should not be empty");
-    }*/
-
-
-    /**
-     * it gets the data when changed in the db and returns it to the ViewModel
-     * @return
-     */
-    public LiveData<List<Photo>> getPhotoData() {
-        return mPhotoDao.retrieveAllData();
+    public void insertTrip(Trip newTrip) {
+        InsertAsyncTripTask task = new InsertAsyncTripTask(tripDao);
+        task.execute(newTrip);
     }
 
-    /*public void getTitleDescription(String title, String description)
-    {
-        new GetFromDbAsync(mPhotoDao, new Photo(title, description),viewModel).execute();
+    public void findTrip(String tripName) {
+        QueryAsyncTripTask task = new QueryAsyncTripTask(tripDao);
+        task.repository = this;
+        task.execute(tripName);
+    }
 
-    }*/
+    public void deleteTrip(Trip trip) {
+        DeleteAsyncTripTask task = new DeleteAsyncTripTask(tripDao);
+        task.execute(trip);
+    }
 
-    /**
-     * Populate the database in the background.
-     * If you want to start with more words, just add them.
-     */
-    /*private static class GetFromDbAsync extends AsyncTask<Void, Void, Void> {
-        private final PhotoDAO mPhotoDao;
-        private final Photo mPhoto;
-        private final ViewModel mviewModel;
+    public void insertPhoto(Photo newPhoto) {
+        InsertAsyncPhotoTask task = new InsertAsyncPhotoTask(photoDao);
+        task.execute(newPhoto);
+    }
 
-        private final ArrayList<Photo> m_list_PhotoData = new ArrayList<>();
+    public void findPhoto(String photoName) {
+        QueryAsyncPhotoTask task = new QueryAsyncPhotoTask(photoDao);
+        task.repository = this;
+        task.execute(photoName);
+    }
 
-        GetFromDbAsync(PhotoDAO dao, Photo photoData, ViewModel viewModel) {
-            mPhotoDao = dao;
-            mPhoto= photoData;
-            mviewModel= viewModel;
+    public void deletePhoto(Photo photo) {
+        DeleteAsyncPhotoTask task = new DeleteAsyncPhotoTask(photoDao);
+        task.execute(photo);
+    }
+
+
+    private void asyncTripFinished(List<Trip> tripsResults) {
+        tripsList.setValue(tripsResults);
+    }
+
+    private void asyncPhotoFinished(List<Photo> photosResults) {
+        photosList.setValue(photosResults);
+    }
+
+
+    private static class QueryAsyncTripTask extends AsyncTask<String, Void, List<Trip>> {
+
+        private TripDAO asyncTaskTripDao;
+        private MyRepository repository = null;
+
+        QueryAsyncTripTask(TripDAO tripdao) {
+            asyncTaskTripDao = tripdao;
         }
 
         @Override
-        protected Void doInBackground(final Void... params) {
-            //mPhotoDao.insert(mPhoto);
-            if(!mPhotoDao.retrieveAllData().isEmpty()) {
+        protected List<Trip> doInBackground(final String... params) {
+            return asyncTaskTripDao.retrieveTripByTitle(params[0]);
+        }
 
-                for (int i = 0; i < mPhotoDao.retrieveAllData().size(); i++) {
-                    m_list_PhotoData.add(mPhotoDao.retrieveAllData().get(i));
-                }
-            }
+        @Override
+        protected void onPostExecute(List<Trip> tripResult) {
+            repository.asyncTripFinished(tripResult);
+        }
+    }
+
+    private static class QueryAsyncPhotoTask extends AsyncTask<String, Void, List<Photo>> {
+
+        private PhotoDAO asyncTaskPhotoDao;
+        private MyRepository repository = null;
+
+        QueryAsyncPhotoTask(PhotoDAO photodao) {
+            asyncTaskPhotoDao = photodao;
+        }
+
+        @Override
+        protected List<Photo> doInBackground(final String... params) {
+            return asyncTaskPhotoDao.retrievePhotoByTitle(params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(List<Photo> photoResult) {
+            repository.asyncPhotoFinished(photoResult);
+        }
+    }
+
+    private static class InsertAsyncPhotoTask extends AsyncTask<Photo, Void, Void> {
+
+        private PhotoDAO asyncTaskPhotoDao;
+
+        InsertAsyncPhotoTask(PhotoDAO photodao) {
+            asyncTaskPhotoDao = photodao;
+        }
+
+        @Override
+        protected Void doInBackground(final Photo... params) {
+            asyncTaskPhotoDao.insertPhoto(params[0]);
             return null;
         }
+    }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+    private static class DeleteAsyncPhotoTask extends AsyncTask<Photo, Void, Void> {
 
-            if(!m_list_PhotoData.isEmpty()) {
-                int i = m_list_PhotoData.size();
-                mviewModel.titleDescriptionRetrieved(m_list_PhotoData.get(0).getTitle(), m_list_PhotoData.get(0).getDescription());
-                mviewModel.ListDataRetreived(m_list_PhotoData);
-            }
-        }
+        private PhotoDAO asyncTaskPhotoDao;
 
-    }*/
-
-    /**
-     * Populate the database in the background.
-     * If you want to start with more words, just add them.
-     */
-    private static class InsertIntoDbAsync extends AsyncTask<Void, Void, Void> {
-        private final PhotoDAO mPhotoDao;
-        private final Photo mPhoto;
-        private final ViewModel mviewModel;
-
-        InsertIntoDbAsync(PhotoDAO dao, Photo photo, ViewModel viewModel) {
-            mPhotoDao = dao;
-            mPhoto = photo;
-            mviewModel= viewModel;
+        DeleteAsyncPhotoTask(PhotoDAO photodao) {
+            asyncTaskPhotoDao = photodao;
         }
 
         @Override
-        protected Void doInBackground(final Void... params) {
-            mPhotoDao.insert(mPhoto);
-            //TODO log
+        protected Void doInBackground(final Photo... params) {
+            asyncTaskPhotoDao.deletePhoto(params[0]);
             return null;
         }
-
-        /*@Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            mviewModel.titleDescriptionInserted(mPhoto.getTitle(), mPhoto.getDescription());
-        }*/
     }
+
+
+    private static class InsertAsyncTripTask extends AsyncTask<Trip, Void, Void> {
+
+        private TripDAO asyncTaskTripDao;
+
+        InsertAsyncTripTask(TripDAO tripdao) {
+            asyncTaskTripDao = tripdao;
+        }
+
+        @Override
+        protected Void doInBackground(final Trip... params) {
+            asyncTaskTripDao.insertTrip(params[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteAsyncTripTask extends AsyncTask<Trip, Void, Void> {
+
+        private TripDAO asyncTaskTripDao;
+
+        DeleteAsyncTripTask(TripDAO tripdao) {
+            asyncTaskTripDao = tripdao;
+        }
+
+        @Override
+        protected Void doInBackground(final Trip... params) {
+            asyncTaskTripDao.deleteTrip(params[0]);
+            return null;
+        }
+    }
+
+
+    public LiveData<List<Trip>> retrieveAllTrips() {
+        return allTrips;
+    }
+
+    public MutableLiveData<List<Trip>> searchTrips() {
+        return tripsList;
+    }
+
+
+    public LiveData<List<Photo>> retrieveAllPhotos() {
+        return allPhotos;
+    }
+
+    public MutableLiveData<List<Photo>> searchPhotos() {
+        return photosList;
+    }
+
 }

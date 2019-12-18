@@ -9,7 +9,6 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Transaction;
 
 import java.util.List;
 
@@ -20,24 +19,20 @@ public interface TripDAO {
     void insertAll(Trip... tripData);
 
     @Insert
-    void insert(Trip trip);
+    void insertTrip(Trip trip);
 
     @Delete
-    void delete(Trip trip);
+    void deleteTrip(Trip trip);
 
     @Query("SELECT * FROM Trip ORDER BY name ASC")
-    LiveData<List<Trip>> retrieveAllData();
+    LiveData<List<Trip>> retrieveAllTrips();
 
     @Query("SELECT * FROM Trip WHERE name = :title")
-    Trip retrieveByTitle(String title);
+    List<Trip> retrieveTripByTitle(String title);
 
     //TODO Other queries
 
     @Delete
     void deleteAll(Trip... tripData);
-
-    @Transaction
-    @Query("SELECT * FROM Trip")
-    public List<TripWithPhotos> getUsersWithPlaylists();
 
 }

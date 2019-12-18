@@ -4,21 +4,26 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@androidx.room.Database(entities = {Photo.class}, version = 1, exportSchema = false)
-public abstract class PhotoDatabase extends RoomDatabase {
+@androidx.room.Database(entities = {Trip.class, Photo.class}, version = 1, exportSchema = false)
+@TypeConverters({LatitudeConverter.class, LongitudeConverter.class, Photo_IdConverter.class})
+
+public abstract class AppDatabase extends RoomDatabase {
     public abstract PhotoDAO photoDao();
+    public abstract TripDAO tripDao();
+
 
     // marking the instance as volatile to ensure atomic access to the variable
-    private static volatile PhotoDatabase INSTANCE;
+    private static volatile AppDatabase INSTANCE;
 
-    public static PhotoDatabase getDatabase(final Context context) {
+    public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
-            synchronized (PhotoDatabase.class) {
+            synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = androidx.room.Room.databaseBuilder(context.getApplicationContext(),
-                            PhotoDatabase.class, "photo_database")
+                            AppDatabase.class, "app_database")
                             // Wipes and rebuilds instead of migrating if no Migration object.
                             // Migration is not part of this codelab.
                             .fallbackToDestructiveMigration()

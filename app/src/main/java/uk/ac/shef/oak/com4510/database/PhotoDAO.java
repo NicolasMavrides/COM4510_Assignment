@@ -18,16 +18,16 @@ public interface PhotoDAO {
     void insertAll(Photo... photodata);
 
     @Insert
-    void insert(Photo photodata);
+    void insertPhoto(Photo photodata);
 
     @Delete
-    void delete(Photo photo);
+    void deletePhoto(Photo photo);
 
     @Query("SELECT * FROM Photo ORDER BY title ASC")
-    LiveData<List<Photo>> retrieveAllData();
+    LiveData<List<Photo>> retrieveAllPhotos();
 
     @Query("SELECT * FROM Photo WHERE title = :title")
-    Photo retrieveByTitle(String title);
+    List<Photo> retrievePhotoByTitle(String title);
 
     //TODO Other queries
 
