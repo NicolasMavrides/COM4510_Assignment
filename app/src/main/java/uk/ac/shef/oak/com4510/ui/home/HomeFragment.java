@@ -42,19 +42,8 @@ public class HomeFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-<<<<<<< HEAD
-
-       /* myList.add(new ListElement(R.drawable.joe1, "Good Morning",
-                "Just wanted to say hello 1"));
-
-        myList.add(new ListElement(R.drawable.joe1, "Good Morning 2",
-                "Just wanted to say hello again!"));
-
-*/
-=======
         mAdapter = new HomeAdapter(myTrips);
         mRecyclerView.setAdapter(mAdapter);
->>>>>>> e740f694fe8a07883a9a69702d3bf4325a239706
 
         Trip newtrip = new Trip("test", "date", "time", "falls", 20, 45, "5", "6", "1, 2, 3, 4" );
         homeViewModel.insertTrip(newtrip);

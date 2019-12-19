@@ -654,7 +654,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
             editor.apply();
-            
+
             Intent intent = new Intent(getActivity(), EndTripActivity.class);
             // passing values to the intent
             intent.putExtra("trip_name", mtrip);
