@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
 
         SharedPreferences prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
-        String tracking_mode = prefs.getString("tracking", "DEFAULT");
+        String tracking_mode = prefs.getString("tracking", "stopped");
 //        Log.i("Shared Preferences", tracking_mode);
         if (!tracking_mode.equals("stopped")) {
             Intent intent = new Intent(getActivity(), MapsActivity.class);
