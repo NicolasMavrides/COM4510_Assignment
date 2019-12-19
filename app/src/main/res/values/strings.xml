@@ -27,4 +27,7 @@
     <string name="dialog_stop">End Trip</string>
     <string name="dialog_cancel">Cancel</string>
 
+
+    <string name="endtrip_activity_done_button">Back to Trips</string>
+
 </resources>
