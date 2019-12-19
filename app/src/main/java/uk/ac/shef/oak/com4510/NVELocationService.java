@@ -172,7 +172,7 @@ public class NVELocationService extends Service {
                                                 .title(mLastUpdateTime));*/
                             }
                             CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-                            // it centres the camera around the new location
+                            // it centers the camera around the new location
                             MapsActivity.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())));
                             // it moves the camera to the selected zoom
                             MapsActivity.getMap().animateCamera(zoom);
