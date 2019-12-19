@@ -15,12 +15,69 @@ import android.widget.TextView;
 
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.ShowImageActivity;
+import uk.ac.shef.oak.com4510.database.Trip;
 
 import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.View_Holder> {
+public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
+    private int tripListLayout;
+    private List<Trip> tripList;
+
+    public HomeAdapter(int layout) {
+        tripListLayout = layout;
+    }
+
+    public void setTripList(List<Trip> trips) {
+        tripList = trips;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemCount() {
+        return tripList == null ? 0 : tripList.size();
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(tripListLayout, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(final ViewHolder holder, final int listPos) {
+        TextView item = holder.item;
+        item.setText(tripList.get(listPos).getName());
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView item;
+        ViewHolder(View itemView) {
+            super(itemView);
+            item = itemView.findViewById(R.id.image_item);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
     static private Context context;
     private static List<ListElement> items;
 
@@ -81,4 +138,4 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.View_Holder> {
             imageView = itemView.findViewById(R.id.image_item);
         }
     }
-}
+     */

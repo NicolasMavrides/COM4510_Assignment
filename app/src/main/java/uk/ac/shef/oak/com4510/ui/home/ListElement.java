@@ -9,13 +9,13 @@ package uk.ac.shef.oak.com4510.ui.home;
  */
 
 class ListElement {
-    int image;
     String title;
-    String preview;
+    String date;
+    String time;
 
-    public ListElement(int image, String title, String preview) {
-        this.image = image;
+    public ListElement(String title, String date, String time) {
         this.title = title;
-        this.preview = preview;
+        this.date = date;
+        this.time = time;
     }
 }
