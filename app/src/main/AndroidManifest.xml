@@ -47,11 +47,6 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
-            android:name="uk.ac.shef.oak.com4510.LocationService"
-            android:enabled="true"
-            />
-
-        <service
             android:name="uk.ac.shef.oak.com4510.NVELocationService"
             android:clearTaskOnLaunch="true"
             android:enabled="true"

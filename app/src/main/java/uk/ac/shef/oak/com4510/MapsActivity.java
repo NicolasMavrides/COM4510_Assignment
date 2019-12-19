@@ -72,6 +72,10 @@ import uk.ac.shef.oak.com4510.sensors.Thermometer;
 import uk.ac.shef.oak.com4510.ui.newtrip.StoptripDialogFragment;
 import uk.ac.shef.oak.com4510.utilities.Notification;
 
+
+/**
+ * Maps Activity covers the tracking part of the application, it shows the map, timer, and tracking functionalities buttons.
+ */
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
 
     //////////////////////////////////////////////////
@@ -135,12 +139,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //                                              //
     //////////////////////////////////////////////////
 
+    /**
+     * On Create function, sets up the activity and updates its value based on shared preferences data.
+     * */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setActivity(this);
 
+        // initializing timer
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
 
@@ -149,6 +157,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // start button initialization, starts location updates (if we have permissions)
         mButtonStart = findViewById(R.id.button_start);
         mButtonStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,6 +178,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        // pause button initialization
+        // stops service - but not trip tracking (i.e. if paused and app was cleared,
+        // the data will still be saved when the user opens the app again)
         mButtonPause = findViewById(R.id.button_pause);
         mButtonPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,6 +211,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        // add Photo button
         FloatingActionButton addPhoto = findViewById(R.id.add_photo);
         addPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,6 +234,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mButtonPause.setEnabled(false);
         }
 
+        // check if started to see if we should update the polyline.
         if (prefs.getString("tracking", "DEFAULT").equals("started") || prefs.getString("tracking", "DEFAULT").equals("paused")){
             already_started = true;
             start_trip = false;
@@ -269,12 +283,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //                                              //
     //////////////////////////////////////////////////
 
+    /**
+     * On resume function - nothing to add,
+     * */
     @Override
     protected void onResume() {
         super.onResume();
     }
 
-    // track and show time
+    /**
+     * Tracks and shows the tracking time.
+     * */
     public Runnable runnable = new Runnable() {
 
         public void run() {
@@ -305,12 +324,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        // creating polyline
         polylineOptions = new PolylineOptions().clickable(true)
                 .color(Color.BLUE)
                 .width(10)
                 .geodesic(true);
         polyline = mMap.addPolyline(polylineOptions);
 
+        // enabling settings
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -335,6 +356,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
 
+            // checked if photos were saved during this trip, if they were, add their markers to the map
             String[] pids = prefs.getString("photo_ids", "").split(";");
             for (String pid:pids){
                 try {
@@ -350,6 +372,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
 
+            // if there were saved points, then set a marker on the first one
+            // and zoom in on the last point on the line - might not appear directly - unsure of the reason why
             if (pts.size() > 0) {
                 polyline.setPoints(pts);
                 // adds start marker
@@ -362,10 +386,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 getMap().animateCamera(zoom);
             }
         }
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
     }
 
     //////////////////////////////////////////////////
@@ -374,7 +394,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //                                              //
     //////////////////////////////////////////////////
 
-    // make sure that we have permissions to access the location data
+    /**
+     * Makes sure that we have the permissions to use the location data, used on create.
+     * */
     private void initLocations() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
@@ -400,45 +422,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             return;
         }
-    }
-
-    /**
-     * Starts Location Updates
-     */
-    private void startLocationUpdates(Context context) {
-        Intent intent = new Intent(context, LocationService.class);
-        mLocationPendingIntent = PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Task<Void> locationTask = mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                    mLocationPendingIntent);
-            if (locationTask != null) {
-                locationTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (e instanceof ApiException) {
-                            Log.w("MapsActivity", ((ApiException) e).getStatusMessage());
-                        } else {
-                            Log.w("MapsActivity", e.getMessage());
-                        }
-                    }
-                });
-
-                locationTask.addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d("MapsActivity", "restarting gps successful!");
-                    }
-                });
-            }
-        }
-    }
-
-    /**
-     * it stops the location updates
-     */
-    private void stopLocationUpdates(){
-        mFusedLocationClient.removeLocationUpdates(mLocationPendingIntent);
     }
 
     /**
@@ -503,33 +486,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.i("Tracking set as", "Paused");
         } catch (NullPointerException e) {
             Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-//                    mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-//                            mLocationCallback, null /* Looper */);
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -608,19 +564,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i ("isMyServiceRunning?", true+"");
-                return true;
-            }
-        }
-        Log.i ("isMyServiceRunning?", false+"");
-        return false;
-    }
-
-    // stop dialog fragment return
+    /**
+     * If they click on the stop button and click on 'End Trip' - the positive button,
+     * we stop the lcoation service if tracking, and set the tracking key in the shared preferences to stopped
+     * we disable the stop button (relatively irrelevant), and stop the timer.
+     * we then collect all of the trip data from the shared preferences and the map's polyline
+     * and store the trip in the database.
+     * Finally, we calculate the travelled distance in meters and show it on the end screen.
+     * */
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         if (mButtonStop!=null){ // just making sure that the stop button exists - not necessary
@@ -690,6 +641,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * If the user clicks on the stop button and then change their mind, do nothing.
+     * */
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         // no action taken, carry on
