@@ -48,6 +48,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,6 +57,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 
 import uk.ac.shef.oak.com451.R;
+import uk.ac.shef.oak.com4510.database.LatitudeConverter;
+import uk.ac.shef.oak.com4510.database.LongitudeConverter;
+import uk.ac.shef.oak.com4510.database.Trip;
+import uk.ac.shef.oak.com4510.database.TripDAO;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
 import uk.ac.shef.oak.com4510.sensors.Barometer;
@@ -115,6 +121,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private String mLastUpdateTime;
     private SharedPreferences prefs;
     private ProcessMainClass bck;
+    private TripDAO tdao;
 
     //////////////////////////////////////////////////
     //                                              //
@@ -200,9 +207,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 
         // button enabling
         prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
-        if (prefs.getString("tracking", "DEFAULT").equals("tracking")){
+        if (prefs.getString("tracking", "DEFAULT").equals("started")){
             mButtonStart.setEnabled(false);
             mButtonPause.setEnabled(true);
+            // TODO add polyline and markers to re-generated map and zoom in on last point
         }
         else {
             mButtonStart.setEnabled(true);
@@ -592,7 +600,37 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                 }
             }
             mButtonStop.setEnabled(false);
+            handler.removeCallbacks(runnable);
+            // store trip in db
+            // store latitude and longitude lists
+            List<Float> lat = new LinkedList<>();
+            List<Float> lng = new LinkedList<>();
+            for (LatLng ltlg:getPolyline().getPoints()){
+                lat.add((float)ltlg.latitude);
+                lng.add((float)ltlg.longitude);
+            }
+            // 100000 are default values which can't be reached for temperature and pressure
+            // so they can be translated to N/A easily in the ui
+            float avgTemp = prefs.getFloat("average_temperature", 100000f);
+            float avgPress = prefs.getFloat("average_pressure", 100000f);
+            String pid = prefs.getString("photo_ids", "");
+
+            // inserting trip in db
+            //TODO generate trip id, check that timer.getText is correct might need to cast it to a string
+            // please check the conversion stuff and see if they should be added here
+//            tdao.insertTrip(new Trip(tdao.generateTripId, // trip id
+//                                     mdate, // date
+//                                     timer.getText(), // time
+//                                     mtrip, // name
+//                                     "", // description
+//                                     avgTemp, // average temperature
+//                                     avgPress, // average pressure
+//                                     lat, // latitudes
+//                                     lng, // longitudes
+//                                     pid // photo ids
+//                    ));
             // TODO endTrip Activity
+
         }
     }
 

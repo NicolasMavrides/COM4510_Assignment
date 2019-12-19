@@ -143,7 +143,8 @@ public class NewImageActivity extends AppCompatActivity {
                         // to the description, but in case we would want to compare points in the future for example
                         // by temperature/pressure
                         //TODO generate photoid and filepath then uncomment below
-//                        newPhoto.insertPhoto(new Photo(newPhoto.generatePhotoId(), // id
+//                        int photoId = newPhoto.generatePhotoId();
+//                        newPhoto.insertPhoto(new Photo(photoId, // id
 //                                                       titleStr, // title
 //                                                       snippStr, // description
 //                                                       filepath, // photo file path
@@ -152,6 +153,12 @@ public class NewImageActivity extends AppCompatActivity {
 //                                                        mcTemp, // temperature
 //                                                        mcPress // pressure
 //                        ));
+
+                        //TODO add generated photoid into shared preferences (uncomment below)
+//                        String currentPhotoIds = prefs.getString("photo_ids", "");
+//                        SharedPreferences.Editor editor = prefs.edit();
+//                        editor.putString("photo_ids", currentPhotoIds+photoId+";");
+//                        editor.apply();
 
                         MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
                                 MapsActivity.getMap(), titleStr, true, 14.0f, snippStr);

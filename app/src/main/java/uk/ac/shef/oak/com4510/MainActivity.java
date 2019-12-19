@@ -1,5 +1,7 @@
 package uk.ac.shef.oak.com4510;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import uk.ac.shef.oak.com451.R;
@@ -14,9 +16,19 @@ import androidx.navigation.ui.NavigationUI;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Activity Related Variables
+    private static AppCompatActivity activity;
+    public static AppCompatActivity getActivity() {
+        return activity;
+    }
+    public static void setActivity(AppCompatActivity activity) {
+        MainActivity.activity = activity;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setActivity(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -30,5 +42,14 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+
+        SharedPreferences prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+        String tracking_mode = prefs.getString("tracking", "DEFAULT");
+//        Log.i("Shared Preferences", tracking_mode);
+        if (tracking_mode.equals("started")) {
+            Intent intent = new Intent(getActivity(), MapsActivity.class);
+            getActivity().startActivity(intent);
+            // TODO in service add polyline storage and restoration
+        }
     }
 }
