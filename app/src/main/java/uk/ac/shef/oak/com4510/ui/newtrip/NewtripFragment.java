@@ -3,7 +3,6 @@ package uk.ac.shef.oak.com4510.ui.newtrip;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import uk.ac.shef.oak.com4510.MapsActivity;
 
-
 /**
  * New Trip fragment code for the New Trip activity
  */
@@ -36,16 +34,13 @@ public class NewtripFragment extends Fragment {
                 ViewModelProviders.of(this).get(NewtripViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_newtrip, container, false);
         final TextView textView = root.findViewById(R.id.date);
-
         // Get current date and time for trip commencement
-        Date c = Calendar.getInstance().getTime();
+        final Date c = Calendar.getInstance().getTime();
         System.out.println("Current time => " + c);
 
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
         final String formattedDate = df.format(c);
         textView.setText(formattedDate);
-
-        fragment = this;
 
         Button button =  root.findViewById(R.id.create_trip);
         button.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +56,7 @@ public class NewtripFragment extends Fragment {
                     imm.hideSoftInputFromWindow(titleView.getWindowToken(), 0);
                     Intent intent = new Intent(getActivity(), MapsActivity.class);
                     intent.putExtra("name", title);
-                    intent.putExtra("date", formattedDate);
+                    intent.putExtra("dateTime", String.valueOf(c));
 
                     // Start the trip
                     getActivity().startActivity(intent);

@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 import uk.ac.shef.oak.com4510.database.AppDatabase;
@@ -24,6 +25,7 @@ public class MyRepository {
     private MutableLiveData<List<Trip>> tripsList = new MutableLiveData<>();
     private LiveData<List<Trip>> allTrips;
     private TripDAO tripDao;
+    private static long photoId;
 
     private MutableLiveData<List<Photo>> photosList = new MutableLiveData<>();
     private LiveData<List<Photo>> allPhotos;
@@ -60,10 +62,11 @@ public class MyRepository {
     }
 
 
+
     /* Data handling methods for the photo object */
 
-    public void insertPhoto(Photo newPhoto) {
-        InsertAsyncPhotoTask task = new InsertAsyncPhotoTask(photoDao);
+    public void insertPhoto(Photo newPhoto, SharedPreferences prefs) {
+        InsertAsyncPhotoTask task = new InsertAsyncPhotoTask(photoDao, prefs);
         task.execute(newPhoto);
     }
 
@@ -78,6 +81,9 @@ public class MyRepository {
         task.execute(photo);
     }
 
+    public void setPhotoID(long id){
+        photoId = id;
+    }
 
     /* Value setters for Trip and Photo lists when asynchronous task completed */
 
@@ -139,16 +145,22 @@ public class MyRepository {
     /* Asynchronous insert task for Photo */
 
     private static class InsertAsyncPhotoTask extends AsyncTask<Photo, Void, Void> {
-
         private PhotoDAO asyncTaskPhotoDao;
+        private SharedPreferences prefs;
 
-        InsertAsyncPhotoTask(PhotoDAO photodao) {
+        InsertAsyncPhotoTask(PhotoDAO photodao, SharedPreferences prefs) {
             asyncTaskPhotoDao = photodao;
+            this.prefs = prefs;
         }
 
         @Override
         protected Void doInBackground(final Photo... params) {
-            asyncTaskPhotoDao.insertPhoto(params[0]);
+            photoId = asyncTaskPhotoDao.insertPhoto(params[0]);
+            String currentPhotoIds = prefs.getString("photo_ids", "");
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("photo_ids", currentPhotoIds+photoId+";");
+            editor.apply();
+
             return null;
         }
     }

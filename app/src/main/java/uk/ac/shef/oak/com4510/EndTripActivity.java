@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import androidx.appcompat.app.AppCompatActivity;
 import uk.ac.shef.oak.com451.R;
 
@@ -40,6 +43,24 @@ public class EndTripActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle("Trip Summary of " + trip_name);
 
+        TextView dateText = findViewById(R.id.summary_date);
+        Date date = new Date(trip_date);
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+        String formattedDate = df.format(date);
+        dateText.setText(formattedDate);
+
+        TextView time = findViewById(R.id.summary_time_taken);
+        time.setText(time_taken);
+
+        TextView distance = findViewById(R.id.summary_distance_traveled);
+        distance.setText(String.valueOf(distance_travelled));
+
+        TextView avg_temp = findViewById(R.id.summary_average_temp);
+        avg_temp.setText(String.valueOf(average_temperature));
+
+        TextView avg_press = findViewById(R.id.summary_average_pressure);
+        avg_press.setText(String.valueOf(average_pressure));
+
         // Done Button Initialization
         Button mButtonDone = (Button) findViewById(R.id.button_done);
         // if Done is clicked, go back to the main activity
@@ -50,6 +71,5 @@ public class EndTripActivity extends AppCompatActivity {
                 getActivity().startActivity(intent);
             }
         });
-
     }
 }

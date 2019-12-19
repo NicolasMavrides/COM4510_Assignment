@@ -1,9 +1,12 @@
 package uk.ac.shef.oak.com4510.ui.gallery;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import uk.ac.shef.oak.com451.R;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import uk.ac.shef.oak.com4510.database.Photo;
 
 
 /**
@@ -19,15 +23,13 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 
 public class GalleryFragment extends Fragment {
-    private List<ImageElement> myPictureList = new ArrayList<>();
+    private List<Photo> myPictureList = new ArrayList<>();
     private GalleryAdapter  mAdapter;
     private RecyclerView mRecyclerView;
     private GalleryViewModel galleryViewModel;
-    private Fragment fragment;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        fragment = this;
 
         galleryViewModel =
                 ViewModelProviders.of(this).get(GalleryViewModel.class);
@@ -41,8 +43,13 @@ public class GalleryFragment extends Fragment {
         mAdapter= new GalleryAdapter(myPictureList);
         mRecyclerView.setAdapter(mAdapter);
 
-        myPictureList.add(new ImageElement(R.drawable.joe1));
-
+        galleryViewModel.getAllPhotos().observe(this, new Observer<List<Photo>>() {
+            @Override
+            public void onChanged(@Nullable List<Photo> photoList) {
+                Log.i("Photo: ", "changed");
+                mAdapter.updateData(photoList);
+            }
+        });
         return root;
     }
 }

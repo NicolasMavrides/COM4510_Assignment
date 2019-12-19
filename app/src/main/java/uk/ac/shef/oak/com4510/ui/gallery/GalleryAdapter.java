@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.ui.gallery;
 
 import android.content.Context;
@@ -17,7 +13,7 @@ import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.ShowImageActivity;
 import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
-
+import uk.ac.shef.oak.com4510.database.Photo;
 
 /**
  * Gallery adapter class for the User Interface and Data Sources
@@ -26,16 +22,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Holder> {
     static private Context context;
-    private static List<ImageElement> items;
+    private static List<Photo> items;
 
-    public GalleryAdapter(List<ImageElement> items) {
+    public GalleryAdapter(List<Photo> items) {
         this.items = items;
     }
 
-    public GalleryAdapter(Context cont, List<ImageElement> items) {
-        super();
-        this.items = items;
-        context = cont;
+    public void updateData(List<Photo> photos){
+        items.clear();
+        items.addAll(photos);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -54,9 +50,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
         //Use the provided View Holder on the onCreateViewHolder method to populate the
         // current row on the RecyclerView
         if (holder!=null && items.get(position)!=null) {
-            if (items.get(position).image!=-1) {
-                holder.imageView.setImageResource(items.get(position).image);
-            } else if (items.get(position).file!=null){
+            if (items.get(position).getFile_path()!=null){
                 new UploadSingleImageTask().execute(new HolderAndPosition(position, holder));
             }
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -102,11 +96,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
         return inSampleSize;
     }
 
-    // convenience method for getting data at click position
-    ImageElement getItem(int id) {
-        return items.get(id);
-    }
-
     @Override
     public int getItemCount() {
         return items.size();
@@ -114,7 +103,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
 
     public class View_Holder extends RecyclerView.ViewHolder  {
         ImageView imageView;
-
 
         View_Holder(View itemView) {
             super(itemView);
@@ -130,7 +118,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
         protected Bitmap doInBackground(HolderAndPosition... holderAndPosition) {
             holdAndPos= holderAndPosition[0];
             Bitmap myBitmap =
-                    decodeSampledBitmapFromResource(items.get(holdAndPos.position).file.getAbsolutePath(), 100, 100);
+                    decodeSampledBitmapFromResource(items.get(holdAndPos.position).getFile_path(), 100, 100);
             return myBitmap;
         }
         @Override
@@ -149,11 +137,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
         }
     }
 
-    public static List<ImageElement> getItems() {
+    public static List<Photo> getItems() {
         return items;
     }
 
-    public static void setItems(List<ImageElement> items) {
+    public static void setItems(List<Photo> items) {
         GalleryAdapter.items = items;
     }
 }

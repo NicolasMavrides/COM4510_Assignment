@@ -1,11 +1,6 @@
-/*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.database;
 
 import java.util.List;
-
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -22,12 +17,12 @@ public interface PhotoDAO {
     void insertAll(Photo... photodata);
 
     @Insert
-    void insertPhoto(Photo photodata);
+    long insertPhoto(Photo photodata);
 
     @Delete
     void deletePhoto(Photo photo);
 
-    @Query("SELECT * FROM Photo ORDER BY title ASC")
+    @Query("SELECT * FROM Photo ORDER BY date ASC")
     LiveData<List<Photo>> retrieveAllPhotos();
 
     @Query("SELECT * FROM Photo WHERE title = :title")

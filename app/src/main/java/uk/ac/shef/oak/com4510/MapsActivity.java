@@ -7,9 +7,7 @@ package uk.ac.shef.oak.com4510;
 //////////////////////////////////////////////////
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -25,13 +23,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,36 +32,23 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
-
 import uk.ac.shef.oak.com451.R;
+import uk.ac.shef.oak.com4510.database.LatLngConverter;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.PhotoDAO;
 import uk.ac.shef.oak.com4510.database.Trip;
 import uk.ac.shef.oak.com4510.database.TripDAO;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
-import uk.ac.shef.oak.com4510.sensors.Accelerometer;
-import uk.ac.shef.oak.com4510.sensors.Barometer;
-import uk.ac.shef.oak.com4510.sensors.Thermometer;
 import uk.ac.shef.oak.com4510.ui.newtrip.StoptripDialogFragment;
-import uk.ac.shef.oak.com4510.utilities.Notification;
 
 /**
  * Maps Activity is the activity which takes care of controlling the route tracking and its functionalities.
@@ -83,7 +63,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Activity Related Variables
     private static AppCompatActivity activity;
-    private PendingIntent mLocationPendingIntent;
     public static AppCompatActivity getActivity() {
         return activity;
     }
@@ -94,7 +73,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // View Related Variables
     private String mdate;
     private String mtrip;
-    private MapView mapView;
     private Button mButtonStart;
     private Button mButtonPause;
     private Button mButtonStop;
@@ -106,7 +84,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     private static Polyline polyline;
     private static PolylineOptions polylineOptions;
-    public static PolylineOptions getPolylineOptions() {return polylineOptions;}
     public static Polyline getPolyline() {return polyline;}
     private static Boolean start_trip;
     private Boolean already_started;
@@ -122,13 +99,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Location Related Variables
     private static final int ACCESS_FINE_LOCATION = 123;
-    private LocationRequest mLocationRequest;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private Location mCurrentLocation;
-    private String mLastUpdateTime;
     private SharedPreferences prefs;
     private ProcessMainClass bck;
-    private TripDAO tdao;
+    private MyRepository mRepository;
+    private LatLngConverter lc = new LatLngConverter();
 
     //////////////////////////////////////////////////
     //                                              //
@@ -144,6 +118,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setActivity(this);
+
+        mRepository = new MyRepository(getApplication());
 
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
@@ -191,7 +167,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         // Stop Button Initialization
-        mButtonStop = (Button) findViewById(R.id.button_stop);
+        mButtonStop = findViewById(R.id.button_stop);
         // if Stop is clicked, ask the user if they're sure they want to stop
         // if they are then show them the end screen with a go Home/gallery button(s)
         mButtonStop.setOnClickListener(new View.OnClickListener() {
@@ -208,8 +184,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), NewImageActivity.class);
-                intent.putExtra("name", mtrip);
-                intent.putExtra("date", mdate);
                 getActivity().startActivity(intent);
             }
         });
@@ -242,7 +216,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mdate = "Default Date";
         if(b != null) {
             mtrip = b.getString("name");
-            mdate = b.getString("date");
+            mdate = b.getString("dateTime");
         }
 
         if (!prefs.getString("tracking", "stopped").equals("stopped")) {
@@ -336,8 +310,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String[] lngs = prefs.getString("polyline_lngs", "").split(";");
             for (int i=0; i<lats.length; i++){
                 try{
-//                    Log.i("Saved Latitude", lats[i]);
-//                    Log.i("Saved Longitude", lngs[i]);
                     pts.add(new LatLng(Double.valueOf(lats[i]), Double.valueOf(lngs[i])));
                 }
                 catch (Exception e){
@@ -601,29 +573,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String pid = prefs.getString("photo_ids", "");
 
             // inserting trip in db
-            //TODO generate trip id, check that timer.getText is correct might need to cast it to a string
-            // please check the conversion stuff and see if they should be added here
-//            tdao.insertTrip(new Trip(tdao.generateTripId, // trip id
-//                                     mdate, // date
-//                                     timer.getText(), // time
-//                                     mtrip, // name
-//                                     "", // description
-//                                     avgTemp, // average temperature
-//                                     avgPress, // average pressure
-//                                     lat, // latitudes
-//                                     lng, // longitudes
-//                                     pid // photo ids
-//                    ));
-            // resets photo ids
+            mRepository.insertTrip(new Trip(mdate, mtrip, "", avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng), pid));
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
             editor.apply();
 
-
-
-//            Intent intent = new Intent(getActivity(), MainActivity.class);
-
             Intent intent = new Intent(getActivity(), EndTripActivity.class);
+
             // passing values to the intent
             intent.putExtra("trip_name", mtrip);
             intent.putExtra("time_taken", timer.getText());

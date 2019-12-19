@@ -39,6 +39,7 @@
         <activity android:name="uk.ac.shef.oak.com4510.RouteActivity" />
         <activity android:name="uk.ac.shef.oak.com4510.MapsActivity" />
         <activity android:name="uk.ac.shef.oak.com4510.NewImageActivity"/>
+        <activity android:name="uk.ac.shef.oak.com4510.EndTripActivity"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />

@@ -32,4 +32,9 @@
     <string name="trip_header_time">Time</string>
 
     <string name="endtrip_activity_done_button">Back to Trips</string>
+    <string name="summary_date">Date:</string>
+    <string name="summary_time_taken">Time Taken:</string>
+    <string name="summary_distance_traveled">Distance Travelled:</string>
+    <string name="summary_average_temp">Average Temperature:</string>
+    <string name="summary_average_pressure">Average Pressure:</string>
 </resources>

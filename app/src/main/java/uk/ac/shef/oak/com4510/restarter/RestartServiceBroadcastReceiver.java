@@ -1,9 +1,4 @@
-/*
- * Copyright (c) 2019. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.restarter;
-
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -16,12 +11,9 @@ import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
-
 import androidx.annotation.RequiresApi;
-
 import uk.ac.shef.oak.com4510.Globals;
 import uk.ac.shef.oak.com4510.ProcessMainClass;
-
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
 public class RestartServiceBroadcastReceiver extends BroadcastReceiver {

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.database;
 
 import androidx.room.Entity;
@@ -18,17 +14,15 @@ import androidx.room.PrimaryKey;
 public class Photo {
     @PrimaryKey(autoGenerate = true)
     @androidx.annotation.NonNull
-    private int photo_id=0;
+    private long photo_id=0;
     private String title;
     private String description;
     private String file_path;
+    private String date;
     private float latitude;
     private float longitude;
-    private int temperature;
-    private int pressure;
-    private String date;
-    private String time;
-
+    private float temperature;
+    private float pressure;
 
     /** Photo Constructor
      * @param title photo title
@@ -39,29 +33,26 @@ public class Photo {
      * @param temperature temperature when photo was taken
      * @param pressure pressure when photo was taken
      * @param date date when photo was taken
-     * @param time time when photo was taken
      */
 
-    public Photo(String title, String description, String file_path, float latitude, float longitude, int temperature, int pressure, String date, String time) {
+    public Photo(String title, String date, String description, String file_path, float latitude, float longitude, float temperature, float pressure) {
         this.title= title;
         this.description= description;
-        this.file_path= file_path;
+        this.file_path = file_path;
         this.latitude= latitude;
         this.longitude= longitude;
         this.temperature= temperature;
         this.pressure= pressure;
         this.date= date;
-        this.time= time;
-
     }
 
     // Getter and Setter methods
     @androidx.annotation.NonNull
-    public int getPhoto_id() {
+    public long getPhoto_id() {
         return photo_id;
     }
 
-    public void setPhoto_id(int photo_id) {
+    public void setPhoto_id(long photo_id) {
         this.photo_id = photo_id;
     }
 
@@ -105,19 +96,19 @@ public class Photo {
         this.longitude = longitude;
     }
 
-    public int getTemperature() {
+    public float getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(int temperature) {
+    public void setTemperature(float temperature) {
         this.temperature = temperature;
     }
 
-    public int getPressure() {
+    public float getPressure() {
         return pressure;
     }
 
-    public void setPressure(int pressure) {
+    public void setPressure(float pressure) {
         this.pressure = pressure;
     }
 
@@ -127,13 +118,5 @@ public class Photo {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
     }
 }

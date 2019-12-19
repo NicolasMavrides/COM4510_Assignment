@@ -7,9 +7,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-
 import androidx.annotation.Nullable;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -19,12 +17,10 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
-
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
 import uk.ac.shef.oak.com4510.sensors.Barometer;
@@ -76,8 +72,8 @@ public class NVELocationService extends Service {
         accelerometer = new Accelerometer(this, barometer, thermometer);
         // initializing location request and client
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         // initialize value storages for when the app isn't on the screen
