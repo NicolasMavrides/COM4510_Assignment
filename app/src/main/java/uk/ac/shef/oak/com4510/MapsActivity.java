@@ -7,9 +7,7 @@ package uk.ac.shef.oak.com4510;
 //////////////////////////////////////////////////
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +29,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,7 +36,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -59,18 +55,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 
 import uk.ac.shef.oak.com451.R;
-import uk.ac.shef.oak.com4510.database.LatitudeConverter;
-import uk.ac.shef.oak.com4510.database.LongitudeConverter;
+import uk.ac.shef.oak.com4510.database.LatLngConverter;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.PhotoDAO;
 import uk.ac.shef.oak.com4510.database.Trip;
-import uk.ac.shef.oak.com4510.database.TripDAO;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
-import uk.ac.shef.oak.com4510.sensors.Accelerometer;
-import uk.ac.shef.oak.com4510.sensors.Barometer;
-import uk.ac.shef.oak.com4510.sensors.Thermometer;
 import uk.ac.shef.oak.com4510.ui.newtrip.StoptripDialogFragment;
-import uk.ac.shef.oak.com4510.utilities.Notification;
 
 public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
 
@@ -127,7 +117,9 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private String mLastUpdateTime;
     private SharedPreferences prefs;
     private ProcessMainClass bck;
-    private TripDAO tdao;
+
+    private MyRepository mRepository;
+    private LatLngConverter lc;
 
     //////////////////////////////////////////////////
     //                                              //
@@ -143,6 +135,8 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
+
+        mRepository = new MyRepository(getApplication());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -334,10 +328,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                 try {
                     Photo nphoto = pdao.retrievePhotoById(Integer.valueOf(pid)).get(0);
                     setMarker(new LatLng((double)nphoto.getLatitude(), (double)nphoto.getLongitude()),
-                              getMap(),
-                              nphoto.getTitle(),
-                              nphoto.getDescription()
-                              );
+                            getMap(),
+                            nphoto.getTitle(),
+                            nphoto.getDescription()
+                    );
                 }
                 catch (Exception e){
 
@@ -532,33 +526,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         }
     };
 
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                            mLocationCallback, null /* Looper */);
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-
     //////////////////////////////////////////////////
     //                                              //
     //                  Utils                       //
@@ -682,25 +649,11 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             String pid = prefs.getString("photo_ids", "");
 
             // inserting trip in db
-            //TODO generate trip id, check that timer.getText is correct might need to cast it to a string
-            // please check the conversion stuff and see if they should be added here
-//            tdao.insertTrip(new Trip(tdao.generateTripId, // trip id
-//                                     mdate, // date
-//                                     timer.getText(), // time
-//                                     mtrip, // name
-//                                     "", // description
-//                                     avgTemp, // average temperature
-//                                     avgPress, // average pressure
-//                                     lat, // latitudes
-//                                     lng, // longitudes
-//                                     pid // photo ids
-//                    ));
-            // resets photo ids
+            mRepository.insertTrip(new Trip(mdate, (String) timer.getText(), mtrip, "", avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng), pid));
+            //TODO resets photo ids
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
             // TODO endTrip Activity
-
-
         }
     }
 
