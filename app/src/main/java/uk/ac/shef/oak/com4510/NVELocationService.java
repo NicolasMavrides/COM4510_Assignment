@@ -271,7 +271,7 @@ public class NVELocationService extends Service {
                 editor.remove("average_pressure");
             }
             editor.apply();
-//            savedRoute = new LinkedList<>();
+            savedRoute = new LinkedList<>();
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             accelerometer.stopAccelerometer();
         }

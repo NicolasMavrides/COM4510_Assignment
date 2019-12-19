@@ -7,9 +7,7 @@ package uk.ac.shef.oak.com4510;
 //////////////////////////////////////////////////
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +29,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,7 +36,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -59,20 +55,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 
 import uk.ac.shef.oak.com451.R;
-import uk.ac.shef.oak.com4510.database.LatitudeConverter;
-import uk.ac.shef.oak.com4510.database.LongitudeConverter;
+import uk.ac.shef.oak.com4510.database.LatLngConverter;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.PhotoDAO;
 import uk.ac.shef.oak.com4510.database.Trip;
-import uk.ac.shef.oak.com4510.database.TripDAO;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
-import uk.ac.shef.oak.com4510.sensors.Accelerometer;
-import uk.ac.shef.oak.com4510.sensors.Barometer;
-import uk.ac.shef.oak.com4510.sensors.Thermometer;
 import uk.ac.shef.oak.com4510.ui.newtrip.StoptripDialogFragment;
-import uk.ac.shef.oak.com4510.utilities.Notification;
 
-public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
 
     //////////////////////////////////////////////////
     //                                              //
@@ -127,7 +117,9 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private String mLastUpdateTime;
     private SharedPreferences prefs;
     private ProcessMainClass bck;
-    private TripDAO tdao;
+
+    private MyRepository mRepository;
+    private LatLngConverter lc;
 
     //////////////////////////////////////////////////
     //                                              //
@@ -143,6 +135,8 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
+
+        mRepository = new MyRepository(getApplication());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -233,17 +227,21 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         mButtonStop.setEnabled(true);
 
         Bundle b = getIntent().getExtras();
+        mtrip = "Default Trip";
+        mdate = "Default Date";
         if(b != null) {
             mtrip = b.getString("name");
             mdate = b.getString("date");
-            if (prefs.getString("tracking", "DEFAULT").equals("started")) {
-                mtrip = prefs.getString("trip_name", "Default Trip");
-                mdate = prefs.getString("trip_date", "Default Date");
-            }
-            getSupportActionBar().setTitle(mtrip);
-            Log.i("date: ", mdate);
-            Log.i("route_name", mtrip);
         }
+
+        if (!prefs.getString("tracking", "stopped").equals("stopped")) {
+            mtrip = prefs.getString("trip_name", "Default Trip");
+            mdate = prefs.getString("trip_date", "Default Date");
+        }
+
+        getSupportActionBar().setTitle(mtrip);
+        Log.i("date: ", mdate);
+        Log.i("route_name", mtrip);
 
         // saves the trip name and date
         try {
@@ -310,7 +308,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(this);
 
         // if currently tracking then look at old polyline, add its points to this polyline
         // and zoom in on last point
@@ -337,10 +334,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                 try {
                     Photo nphoto = pdao.retrievePhotoById(Integer.valueOf(pid)).get(0);
                     setMarker(new LatLng((double)nphoto.getLatitude(), (double)nphoto.getLongitude()),
-                              getMap(),
-                              nphoto.getTitle(),
-                              nphoto.getDescription()
-                              );
+                            getMap(),
+                            nphoto.getTitle(),
+                            nphoto.getDescription()
+                    );
                 }
                 catch (Exception e){
 
@@ -363,13 +360,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                mLocationCallback, null /* Looper */);
-        return false;
     }
 
     //////////////////////////////////////////////////
@@ -474,7 +464,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * It stops the updates of the never ending background service.
      */
     private void stopNVELocationUpdates(){
-        ProcessMainClass bck = new ProcessMainClass();
+        bck = new ProcessMainClass();
         bck.stopService(getApplicationContext());
         // adds to the shared preferences that we have currently stopped tracking the location
         // that way, when the service is destroyed, it will know that it shouldn't restart itself
@@ -510,6 +500,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         }
     }
 
+<<<<<<< HEAD
 
     // Location callback gets the updates
     LocationCallback mLocationCallback = new LocationCallback() {
@@ -536,7 +527,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 //                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 14.0f));
         }
     };
-
 
     //////////////////////////////////////////////////
     //                                              //
@@ -661,36 +651,77 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             String pid = prefs.getString("photo_ids", "");
 
             // inserting trip in db
-            //TODO generate trip id, check that timer.getText is correct might need to cast it to a string
-            // please check the conversion stuff and see if they should be added here
-//            tdao.insertTrip(new Trip(tdao.generateTripId, // trip id
-//                                     mdate, // date
-//                                     timer.getText(), // time
-//                                     mtrip, // name
-//                                     "", // description
-//                                     avgTemp, // average temperature
-//                                     avgPress, // average pressure
-//                                     lat, // latitudes
-//                                     lng, // longitudes
-//                                     pid // photo ids
-//                    ));
-            // resets photo ids
+            mRepository.insertTrip(new Trip(mdate, (String) timer.getText(), mtrip, "", avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng), pid));
+            //TODO resets photo ids
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
             editor.apply();
 
-            Intent intent = new Intent(getActivity(), MainActivity.class);
+
+//            Intent intent = new Intent(getActivity(), MainActivity.class);
+
+            Intent intent = new Intent(getActivity(), EndTripActivity.class);
+            // passing values to the intent
+            intent.putExtra("trip_name", mtrip);
+            intent.putExtra("time_taken", timer.getText());
+            intent.putExtra("date", mdate);
+            intent.putExtra("distance", polylineDistance(polyline));
+            intent.putExtra("avg_temp", avgTemp);
+            intent.putExtra("avg_press", avgPress);
             getActivity().startActivity(intent);
-
-            // TODO endTrip Activity
-
-
         }
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         // no action taken, carry on
+    }
+
+    /**
+     *
+     * Taken from https://stackoverflow.com/questions/3694380/calculating-distance-between-two-points-using-latitude-longitude
+     *
+     * Calculate distance between two points in latitude and longitude taking
+     * into account height difference. If you are not interested in height
+     * difference pass 0.0. Uses Haversine method as its base.
+     *
+     * lat1, lon1 Start point lat2, lon2 End point el1 Start altitude in meters
+     * el2 End altitude in meters
+     * @returns Distance in Meters
+     */
+    private double distance(double lat1, double lat2, double lon1,
+                                  double lon2, double el1, double el2) {
+
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+
+        double height = el1 - el2;
+
+        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+
+        return Math.sqrt(distance);
+    }
+
+    /**
+     * @param poly - a polyline
+     * @return returns double representing the distance in meters covered by the given polyline.
+     */
+    private double polylineDistance(Polyline poly){
+        double total = 0d;
+        List<LatLng> pts = poly.getPoints();
+        for (int i =0; i<pts.size()-1; i++){
+            total += distance(pts.get(i).latitude, pts.get(i+1).latitude,
+                              pts.get(i).longitude, pts.get(i+1).longitude,
+                              0, 0);
+        }
+        return total;
     }
 
 //

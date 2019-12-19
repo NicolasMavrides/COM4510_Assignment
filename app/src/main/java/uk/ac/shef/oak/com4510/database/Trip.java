@@ -17,14 +17,15 @@ public class Trip {
     private String time;
     private String name;
     private String description;
-    private int av_temperature;
-    private int av_pressure;
+    private float av_temperature;
+    private float av_pressure;
     private String latitudes;
     private String longitudes;
     private String photo_ids;
 
 
-    public Trip(String date, String time, String name, String description, int av_temperature, int av_pressure, String latitudes, String longitudes, String photo_ids) {
+    public Trip(String date, String time, String name, String description, float av_temperature, float av_pressure, String latitudes, String longitudes, String photo_ids) {
+        this.trip_id= trip_id;
         this.date= date;
         this.time= time;
         this.name= name;
@@ -77,7 +78,7 @@ public class Trip {
         this.description = description;
     }
 
-    public int getAv_temperature() {
+    public float getAv_temperature() {
         return av_temperature;
     }
 
@@ -85,7 +86,7 @@ public class Trip {
         this.av_temperature = av_temperature;
     }
 
-    public int getAv_pressure() {
+    public float getAv_pressure() {
         return av_pressure;
     }
 
