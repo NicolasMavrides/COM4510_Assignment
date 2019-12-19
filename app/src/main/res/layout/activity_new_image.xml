@@ -61,17 +61,17 @@
             android:layout_height="45dp"
             android:layout_weight="1"
             android:adjustViewBounds="true"
+            android:drawableLeft="@drawable/ic_menu_gallery"
             android:gravity="center"
             android:scaleType="fitCenter"
-            android:text="Select an image"
-            android:drawableLeft="@drawable/ic_menu_gallery"/>
+            android:text="Gallery" />
     </LinearLayout>
 
     <ImageView
+        android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"
-        android:id="@+id/preview"/>
+        android:layout_weight="10" />
 
     <Button
         android:id="@+id/button_save"

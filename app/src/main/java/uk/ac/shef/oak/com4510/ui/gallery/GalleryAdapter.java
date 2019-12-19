@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.ui.gallery;
 
 import android.content.Context;
@@ -13,14 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.ShowImageActivity;
-
 import java.util.List;
-
 import androidx.recyclerview.widget.RecyclerView;
 import uk.ac.shef.oak.com4510.database.Photo;
+
+/**
+ * Gallery adapter class for the User Interface and Data Sources
+ * related to the app's Gallery functions
+ */
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Holder> {
     static private Context context;

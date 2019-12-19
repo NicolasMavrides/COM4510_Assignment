@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.utilities;
 
 import android.app.NotificationChannel;
@@ -10,10 +6,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
-
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.MapsActivity;
 

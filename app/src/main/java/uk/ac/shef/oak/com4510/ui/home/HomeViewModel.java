@@ -3,15 +3,12 @@ package uk.ac.shef.oak.com4510.ui.home;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import uk.ac.shef.oak.com4510.MyRepository;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.Trip;
-
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import java.util.List;
 
 public class HomeViewModel extends AndroidViewModel {

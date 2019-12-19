@@ -1,16 +1,15 @@
-/*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.database;
 
 import java.util.List;
-
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+
+/**
+ * DAO for Photos
+ */
 
 @Dao
 public interface PhotoDAO {
@@ -32,7 +31,11 @@ public interface PhotoDAO {
     @Query("SELECT * FROM Photo WHERE photo_id = :photo_id")
     List<Photo> retrievePhotoById(int photo_id);
 
-    //TODO Other queries
+    @Query("SELECT * FROM Photo WHERE title = :date")
+    List<Photo> retrievePhotoByDate(String date);
+
+    @Query("SELECT * FROM Photo WHERE title = :time")
+    List<Photo> retrievePhotoByTime(String time);
 
     @Delete
     void deleteAll(Photo... photoData);

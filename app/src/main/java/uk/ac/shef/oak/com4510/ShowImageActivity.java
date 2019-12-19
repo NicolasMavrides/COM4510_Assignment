@@ -4,12 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.ImageView;
-
 import uk.ac.shef.oak.com451.R;
-
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.ui.gallery.GalleryAdapter;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ShowImageActivity extends AppCompatActivity {

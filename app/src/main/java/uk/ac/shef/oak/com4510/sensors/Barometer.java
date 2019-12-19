@@ -12,12 +12,6 @@ import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.util.Log;
 
-
-/*
- * Copyright (c) 2019. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
-
 public class Barometer {
     private static final String TAG = Barometer.class.getSimpleName();
     private long mSamplingRateInMSecs;

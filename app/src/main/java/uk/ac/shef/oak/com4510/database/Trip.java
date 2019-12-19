@@ -1,12 +1,13 @@
-/*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.database;
+
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+/**
+ * Trip class for photo database entity in Rooms Stored seperately from Photos in Trip table.
+ * Photos for a specific trip are accessible in photo_ids by their unique ID number.
+ */
 
 @Entity(indices=@Index(value={"name"}))
 public class Trip {
@@ -22,7 +23,17 @@ public class Trip {
     private String longitudes;
     private String photo_ids;
 
-
+    /** Trip Constructor
+     * @param date date of the trip
+     * @param name name of the trip
+     * @param description description of the trip
+     * @param av_temperature average temperature sensed during the trip
+     * @param av_pressure average pressure sensed during the trip
+     * @param latitudes list of latitudes from duration of the trip
+     * @param longitudes list of longitudes from duration of the trip
+     * @param photo_ids list of IDs of photos that were taken during the trip (links the photos to
+     *                  their respective trip)
+     */
     public Trip(String date, String name, String description, float av_temperature, float av_pressure, String latitudes, String longitudes, String photo_ids) {
         this.trip_id= trip_id;
         this.date= date;

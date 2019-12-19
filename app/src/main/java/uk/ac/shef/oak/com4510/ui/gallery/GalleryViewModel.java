@@ -3,13 +3,10 @@ package uk.ac.shef.oak.com4510.ui.gallery;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import java.util.List;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import uk.ac.shef.oak.com4510.MyRepository;
-
 import androidx.lifecycle.AndroidViewModel;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.Trip;
@@ -20,8 +17,6 @@ public class GalleryViewModel extends AndroidViewModel {
     private MutableLiveData<List<Trip>> tripsList;
     private LiveData<List<Photo>> allPhotos;
     private MutableLiveData<List<Photo>> photosList;
-
-    //private MutableLiveData<String> mText;
 
     public GalleryViewModel(Application application) {
         super(application);
@@ -54,7 +49,6 @@ public class GalleryViewModel extends AndroidViewModel {
         mRepository.deleteTrip(tripName);
     }
 
-
     MutableLiveData<List<Photo>> getPhotoSearchResults() {
         return photosList;
     }
@@ -70,5 +64,4 @@ public class GalleryViewModel extends AndroidViewModel {
     public void findPhoto(String photoName) {
         mRepository.findPhoto(photoName);
     }
-
 }

@@ -21,7 +21,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.snackbar.Snackbar;
 import java.io.File;
@@ -34,11 +33,7 @@ import uk.ac.shef.oak.com4510.database.Photo;
 
 public class NewImageActivity extends AppCompatActivity {
 
-    private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
-    private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
-    private static final int REQUEST_CAMERA = 1889;
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 100;
-    private String mtrip;
     private float mcTemp, mcPress;
     private String titleStr;
     private String snippStr;
@@ -63,7 +58,6 @@ public class NewImageActivity extends AppCompatActivity {
 
         // required by Android 6.0 +
         checkPermissions(getApplicationContext());
-
         initEasyImage();
 
         imagePreview = findViewById(R.id.preview);
@@ -73,16 +67,26 @@ public class NewImageActivity extends AppCompatActivity {
         fabGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EasyImage.openGallery(getActivity(), 0);
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    EasyImage.openGallery(getActivity(), 0);
+                } else {
+                    Toast.makeText(getApplicationContext(),"You need to enable file storage access permission to do that.",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
-        // the floating button that will allow us to takes pictures
+        // the floating button that will allow us to take pictures
         Button fabCamera = findViewById(R.id.fab_camera);
         fabCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EasyImage.openCamera(getActivity(), 0);
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    EasyImage.openCamera(getActivity(), 0);
+                } else {
+                    Toast.makeText(getApplicationContext(),"You need to enable camera access permission to do that.",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -90,7 +94,6 @@ public class NewImageActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 AutoCompleteTextView photoName = findViewById(R.id.photo_name);
                 AutoCompleteTextView photoDescription = findViewById(R.id.photo_description);
                 String name = photoName.getText().toString();
@@ -130,18 +133,11 @@ public class NewImageActivity extends AppCompatActivity {
                             snippStr += "Barometric Pressure: N/A \n";
                         }
 
-
-                        // instead of saving the temperature and pressure in separate columns we could just add them
-                        // to the description, but in case we would want to compare points in the future for example
-                        // by temperature/pressure
-
                         // inserting photo in db
                         float latitude = (float) polyline_points.get(polyline_points.size()-1).latitude;
                         float longitude = (float) polyline_points.get(polyline_points.size()-1).longitude;
 
                         Date c = Calendar.getInstance().getTime();
-
-                        //TODO insert date or time object
                         mRepository.insertPhoto(new Photo(titleStr, String.valueOf(c), snippStr, filePath, latitude, longitude, mcTemp, mcPress), prefs);
 
                         MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
@@ -199,9 +195,11 @@ public class NewImageActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
+
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
+
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 listPermissionsNeeded.add(Manifest.permission.CAMERA);
             }

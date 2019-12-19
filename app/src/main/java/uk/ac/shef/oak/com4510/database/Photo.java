@@ -1,22 +1,14 @@
-/*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com4510.database;
 
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import static androidx.room.ForeignKey.CASCADE;
-
-
-/*,
-        foreignKeys = @ForeignKey(entity = Trip.class,
-        parentColumns = "photo_id",
-        childColumns = "trip_id",
-        onDelete = CASCADE))
-*/
+/**
+ * Photo class for photo database entity in Rooms
+ * Stored seperately from Trips in Photo table and are accessible from trips by
+ * their unique ID number.
+ */
 
 @Entity(indices={@Index(value={"title"})})
 public class Photo {
@@ -32,8 +24,16 @@ public class Photo {
     private float temperature;
     private float pressure;
 
-   /* @ColumnInfo(name = "trip_fk")
-    private int trip_id; */
+    /** Photo Constructor
+     * @param title photo title
+     * @param description photo description
+     * @param file_path file path to photo on device storage
+     * @param latitude latitude where photo was taken
+     * @param longitude longitude where photo was taken
+     * @param temperature temperature when photo was taken
+     * @param pressure pressure when photo was taken
+     * @param date date when photo was taken
+     */
 
     public Photo(String title, String date, String description, String file_path, float latitude, float longitude, float temperature, float pressure) {
         this.title= title;
@@ -43,18 +43,11 @@ public class Photo {
         this.longitude= longitude;
         this.temperature= temperature;
         this.pressure= pressure;
+        this.date= date;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
+    // Getter and Setter methods
     @androidx.annotation.NonNull
-
     public long getPhoto_id() {
         return photo_id;
     }
@@ -117,5 +110,13 @@ public class Photo {
 
     public void setPressure(float pressure) {
         this.pressure = pressure;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

@@ -5,13 +5,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import uk.ac.shef.oak.com451.R;
 
 public class EndTripActivity extends AppCompatActivity {
