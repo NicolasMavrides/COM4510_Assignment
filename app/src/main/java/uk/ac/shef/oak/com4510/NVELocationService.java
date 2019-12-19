@@ -42,6 +42,7 @@ public class NVELocationService extends Service {
     private List<Location> mSavedLocations;
     private List<String> mSavedUpdateTimes;
     private List<Float> mSavedTemp, mSavedPress;
+    private List<LatLng> savedRoute;
 
     // sensors
     private Accelerometer accelerometer;
@@ -77,6 +78,10 @@ public class NVELocationService extends Service {
         mSavedUpdateTimes = new LinkedList<>();
         mSavedPress = new LinkedList<>();
         mSavedTemp = new LinkedList<>();
+        // shouldn't update the saved route on restart
+        if (savedRoute == null) {
+            savedRoute = new LinkedList<>();
+        }
         trackingChecker = false;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -118,6 +123,7 @@ public class NVELocationService extends Service {
             mCurrentLocation = locationResult.getLastLocation();
             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
 
+
             SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             // try to get the sensor values, if not, it means that there is something that isn't working with
@@ -137,7 +143,6 @@ public class NVELocationService extends Service {
 
             editor.putString("current_updateTime", mLastUpdateTime); // not necessary
             editor.apply();
-
             // store update times, pressure and temperature in list
             mSavedUpdateTimes.add(mLastUpdateTime);
             mSavedPress.add(mCurrentPress);
@@ -158,9 +163,13 @@ public class NVELocationService extends Service {
                                 if (trackingChecker){
                                     for (Location listLocation:mSavedLocations){
                                         points.add(new LatLng(listLocation.getLatitude(), listLocation.getLongitude()));
+                                        // update saved routes points
+                                        savedRoute.add(new LatLng(listLocation.getLatitude(), listLocation.getLongitude()));
                                     }
                                 }
                                 points.add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+                                // update saved routes points
+                                savedRoute.add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
                                 route.setPoints(points);
                                 // set starting marker
                                 if (MapsActivity.isStartPoint()){
@@ -168,14 +177,15 @@ public class NVELocationService extends Service {
                                             MapsActivity.getMap(), "Start of Trip", true, 14.0f);
                                     MapsActivity.stopStartPoint();
                                 }
+
+                                CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+                                // it centers the camera around the new location
+                                MapsActivity.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())));
+                                // it moves the camera to the selected zoom
+                                MapsActivity.getMap().animateCamera(zoom);
                                         /*MapsActivity.getMap().addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                                                 .title(mLastUpdateTime));*/
                             }
-                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-                            // it centers the camera around the new location
-                            MapsActivity.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())));
-                            // it moves the camera to the selected zoom
-                            MapsActivity.getMap().animateCamera(zoom);
                         } catch (Exception e ){
                             Log.e("LocationService", "Error cannot write on map "+e.getMessage());
                         }
@@ -261,6 +271,7 @@ public class NVELocationService extends Service {
                 editor.remove("average_pressure");
             }
             editor.apply();
+//            savedRoute = new LinkedList<>();
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             accelerometer.stopAccelerometer();
         }
@@ -288,9 +299,9 @@ public class NVELocationService extends Service {
         if (!tracking_mode.equals("stopped")) {
             String lats = "";
             String lngs = "";
-            for (LatLng latlng : route.getPoints()) {
-                lats += latlng.latitude + ';';
-                lngs += latlng.longitude + ';';
+            for (LatLng latlng : savedRoute) {
+                lats += latlng.latitude + ";";
+                lngs += latlng.longitude + ";";
             }
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("polyline_lats", lats);

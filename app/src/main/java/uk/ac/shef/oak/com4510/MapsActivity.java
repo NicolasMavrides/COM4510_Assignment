@@ -317,17 +317,20 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
         if (already_started){
             List<LatLng> pts = polyline.getPoints();
+            Log.i("Latitudes", prefs.getString("polyline_lats", ""));
+            Log.i("Longitudes", prefs.getString("polyline_lngs", ""));
             String[] lats = prefs.getString("polyline_lats", "").split(";");
             String[] lngs = prefs.getString("polyline_lngs", "").split(";");
             for (int i=0; i<lats.length; i++){
                 try{
+//                    Log.i("Saved Latitude", lats[i]);
+//                    Log.i("Saved Longitude", lngs[i]);
                     pts.add(new LatLng(Double.valueOf(lats[i]), Double.valueOf(lngs[i])));
                 }
                 catch (Exception e){
 
                 }
             }
-            polyline.setPoints(pts);
 
             String[] pids = prefs.getString("photo_ids", "").split(";");
             for (String pid:pids){
@@ -345,6 +348,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             }
 
             if (pts.size() > 0) {
+                polyline.setPoints(pts);
                 // adds start marker
                 setMarker(pts.get(0), getMap(), "Start of Trip");
                 // zoom in on last point
@@ -470,6 +474,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * It stops the updates of the never ending background service.
      */
     private void stopNVELocationUpdates(){
+        ProcessMainClass bck = new ProcessMainClass();
         bck.stopService(getApplicationContext());
         // adds to the shared preferences that we have currently stopped tracking the location
         // that way, when the service is destroyed, it will know that it shouldn't restart itself
@@ -544,8 +549,8 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                            mLocationCallback, null /* Looper */);
+//                    mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+//                            mLocationCallback, null /* Looper */);
                 } else {
 
                     // permission denied, boo! Disable the
@@ -698,6 +703,11 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             // resets photo ids
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
+            editor.apply();
+
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            getActivity().startActivity(intent);
+
             // TODO endTrip Activity
 
 
