@@ -24,7 +24,7 @@ public class Trip {
     private String photo_ids;
 
 
-    public Trip(int trip_id, String date, String time, String name, String description, int av_temperature, int av_pressure, String latitudes, String longitudes, String photo_ids) {
+    public Trip(String date, String time, String name, String description, int av_temperature, int av_pressure, String latitudes, String longitudes, String photo_ids) {
         this.trip_id= trip_id;
         this.date= date;
         this.time= time;
@@ -40,10 +40,6 @@ public class Trip {
     @androidx.annotation.NonNull
     public int getTrip_id() {
         return trip_id;
-    }
-
-    public void setTrip_id(int trip_id) {
-        this.trip_id = trip_id;
     }
 
     public String getDate() {
