@@ -13,13 +13,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.ShowImageActivity;
-
 import java.util.List;
-
 import androidx.recyclerview.widget.RecyclerView;
+
+
+/**
+ * Gallery adapter class for the User Interface and Data Sources
+ * related to the app's Gallery functions
+ */
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Holder> {
     static private Context context;

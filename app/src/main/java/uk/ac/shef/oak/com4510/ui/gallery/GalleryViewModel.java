@@ -1,9 +1,7 @@
 package uk.ac.shef.oak.com4510.ui.gallery;
 
 import android.app.Application;
-
 import uk.ac.shef.oak.com4510.MyRepository;
-
 import androidx.lifecycle.AndroidViewModel;
 
 public class GalleryViewModel extends AndroidViewModel {
@@ -16,6 +14,7 @@ public class GalleryViewModel extends AndroidViewModel {
         // creation and connection to the Repository
         mRepository = new MyRepository(application);
     }
+
     //mText = new MutableLiveData<>();
     //mText.setValue("This is home fragment");
 

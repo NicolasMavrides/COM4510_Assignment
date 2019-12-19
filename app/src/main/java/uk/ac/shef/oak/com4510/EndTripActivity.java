@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import uk.ac.shef.oak.com451.R;
 
 public class EndTripActivity extends AppCompatActivity {

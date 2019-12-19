@@ -8,13 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import uk.ac.shef.oak.com451.R;
-
 import java.util.List;
-
 import androidx.recyclerview.widget.RecyclerView;
 import uk.ac.shef.oak.com4510.database.Trip;
+
+/**
+ * Home adapter class for the User Interface and Data Sources
+ * related to the app's Home Page functions
+ */
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
     private static List<Trip> items;

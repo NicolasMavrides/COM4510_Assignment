@@ -5,19 +5,18 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-
 import androidx.fragment.app.DialogFragment;
-
 import uk.ac.shef.oak.com451.R;
-import uk.ac.shef.oak.com4510.MapsActivity;
 
 // taken from https://developer.android.com/guide/topics/ui/dialogs
 
 public class StoptripDialogFragment extends DialogFragment {
 
-    /* The activity that creates an instance of this dialog fragment must
+    /** The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
-     * Each method passes the DialogFragment in case the host needs to query it. */
+     * Each method passes the DialogFragment in case the host needs to query it.
+     */
+
     public interface NoticeDialogListener {
         public void onDialogPositiveClick(DialogFragment dialog);
         public void onDialogNegativeClick(DialogFragment dialog);

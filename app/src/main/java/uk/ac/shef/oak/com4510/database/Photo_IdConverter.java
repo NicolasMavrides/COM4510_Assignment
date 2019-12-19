@@ -12,11 +12,23 @@ import java.util.List;
  */
 
 public class Photo_IdConverter {
+
+    /**
+     * storedStringToPhoto_id: convert from string to List of photo ID Strings
+     * @param value the string to be converted
+     */
+
     @TypeConverter
     public Photo_ids storedStringToPhoto_id(String value) {
         List<String> photo_ids = Arrays.asList(value.split("\\s*,\\s*"));
         return new Photo_ids(photo_ids);
     }
+
+
+    /**
+     * photo_idToStoredString: convert from list of photo ID Strings to a continuous string
+     * @param photo_ids the string list to be converted
+     */
 
     @TypeConverter
     public String photo_idToStoredString(Photo_ids photo_ids) {

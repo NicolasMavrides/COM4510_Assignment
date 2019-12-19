@@ -28,6 +28,19 @@ public class Trip {
     private String photo_ids;
 
 
+    /** Trip Constructor
+     * @param date date of the trip
+     * @param time time of the trip
+     * @param name name of the trip
+     * @param description description of the trip
+     * @param av_temperature average temperature sensed during the trip
+     * @param av_pressure average pressure sensed during the trip
+     * @param latitudes list of latitudes from duration of the trip
+     * @param longitudes list of longitudes from duration of the trip
+     * @param photo_ids list of IDs of photos that were taken during the trip (links the photos to
+     *                  their respective trip)
+     */
+
     public Trip(String date, String time, String name, String description, float av_temperature, float av_pressure, String latitudes, String longitudes, String photo_ids) {
         this.trip_id= trip_id;
         this.date= date;

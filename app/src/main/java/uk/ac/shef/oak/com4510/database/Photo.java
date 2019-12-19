@@ -26,8 +26,23 @@ public class Photo {
     private float longitude;
     private int temperature;
     private int pressure;
+    private String date;
+    private String time;
 
-    public Photo(String title, String description, String file_path, float latitude, float longitude, int temperature, int pressure) {
+
+    /** Photo Constructor
+     * @param title photo title
+     * @param description photo description
+     * @param file_path file path to photo on device storage
+     * @param latitude latitude where photo was taken
+     * @param longitude longitude where photo was taken
+     * @param temperature temperature when photo was taken
+     * @param pressure pressure when photo was taken
+     * @param date date when photo was taken
+     * @param time time when photo was taken
+     */
+
+    public Photo(String title, String description, String file_path, float latitude, float longitude, int temperature, int pressure, String date, String time) {
         this.title= title;
         this.description= description;
         this.file_path= file_path;
@@ -35,6 +50,9 @@ public class Photo {
         this.longitude= longitude;
         this.temperature= temperature;
         this.pressure= pressure;
+        this.date= date;
+        this.time= time;
+
     }
 
     // Getter and Setter methods
@@ -101,5 +119,21 @@ public class Photo {
 
     public void setPressure(int pressure) {
         this.pressure = pressure;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }

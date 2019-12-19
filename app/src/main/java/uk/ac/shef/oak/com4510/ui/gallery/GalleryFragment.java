@@ -4,17 +4,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import uk.ac.shef.oak.com451.R;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+
+/**
+ * Gallery fragment code for the Gallery activity using the RecyclerView
+ */
 
 public class GalleryFragment extends Fragment {
     private List<ImageElement> myPictureList = new ArrayList<>();

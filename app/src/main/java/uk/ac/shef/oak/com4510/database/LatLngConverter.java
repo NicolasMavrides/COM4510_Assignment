@@ -12,6 +12,12 @@ import java.util.List;
  */
 
 public class LatLngConverter {
+
+    /**
+     * storedStringToFloat: convert from string to List of Floats
+     * @param value the string to be converted
+     */
+
     @TypeConverter
     public List<Float> storedStringToFloat(String value) {
         List<String> string = Arrays.asList(value.split("\\s*,\\s*"));
@@ -21,6 +27,11 @@ public class LatLngConverter {
         }
         return floats;
     }
+
+    /**
+     * floatToStoredString: convert from List of Floats to string
+     * @param values the float list to be converted
+     */
 
     @TypeConverter
     public String floatToStoredString(List<Float> values) {

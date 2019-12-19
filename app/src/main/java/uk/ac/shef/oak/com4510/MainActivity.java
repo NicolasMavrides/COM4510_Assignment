@@ -3,16 +3,18 @@ package uk.ac.shef.oak.com4510;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
 import uk.ac.shef.oak.com451.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+/**
+ * MainActivity of application
+ */
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
         String tracking_mode = prefs.getString("tracking", "stopped");
-//        Log.i("Shared Preferences", tracking_mode);
+
         if (!tracking_mode.equals("stopped")) {
             Intent intent = new Intent(getActivity(), MapsActivity.class);
             getActivity().startActivity(intent);

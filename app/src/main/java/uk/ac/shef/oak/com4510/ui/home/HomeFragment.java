@@ -20,6 +20,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * Home fragment code for the Home activity using the RecyclerView
+ */
+
 public class HomeFragment extends Fragment {
 
     private List<Trip> myTrips = new ArrayList<>();

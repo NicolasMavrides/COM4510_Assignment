@@ -15,6 +15,7 @@ import androidx.room.Query;
 /**
  * DAO for Photos
  */
+
 @Dao
 public interface PhotoDAO {
     @Insert
@@ -35,7 +36,11 @@ public interface PhotoDAO {
     @Query("SELECT * FROM Photo WHERE photo_id = :photo_id")
     List<Photo> retrievePhotoById(int photo_id);
 
-    //TODO Other queries
+    @Query("SELECT * FROM Photo WHERE title = :date")
+    List<Photo> retrievePhotoByDate(String date);
+
+    @Query("SELECT * FROM Photo WHERE title = :time")
+    List<Photo> retrievePhotoByTime(String time);
 
     @Delete
     void deleteAll(Photo... photoData);
