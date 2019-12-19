@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510.ui.home;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class HomeFragment extends Fragment {
 
-    private List<ListElement> myTrips = new ArrayList<>();
-    private RecyclerView.Adapter  mAdapter;
+    private List<Trip> myTrips = new ArrayList<>();
+    private HomeAdapter  mAdapter;
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private HomeViewModel homeViewModel;
@@ -41,18 +42,8 @@ public class HomeFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-
-
-
-
-
-       /* myList.add(new ListElement(R.drawable.joe1, "Good Morning",
-                "Just wanted to say hello 1"));
-
-        myList.add(new ListElement(R.drawable.joe1, "Good Morning 2",
-                "Just wanted to say hello again!"));
-
-*/
+        mAdapter = new HomeAdapter(myTrips);
+        mRecyclerView.setAdapter(mAdapter);
 
         Trip newtrip = new Trip("test", "date", "time", "falls", 20, 45, "5", "6", "1, 2, 3, 4" );
         homeViewModel.insertTrip(newtrip);
@@ -60,15 +51,10 @@ public class HomeFragment extends Fragment {
         homeViewModel.getAllTrips().observe(this, new Observer<List<Trip>>() {
             @Override
             public void onChanged(@Nullable List<Trip> tripList) {
-                for (int i = 0; i < tripList.size(); i++) {
-                    myTrips.add(new ListElement("title", "date", "time"));
-                }
+                Log.i("Trips: ", "changed");
+                mAdapter.updateData(tripList);
             }
         });
-
-        mAdapter= new HomeAdapter(2); // List.size()?
-        mRecyclerView.setAdapter(mAdapter);
-
 
         return root;
     }

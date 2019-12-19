@@ -38,7 +38,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
     @Override
     public View_Holder onCreateViewHolder(ViewGroup parent, int viewType) {
         //Inflate the layout, initialize the View Holder
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_item_image,
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_image,
                 parent, false);
         View_Holder holder = new View_Holder(v);
         context= parent.getContext();
