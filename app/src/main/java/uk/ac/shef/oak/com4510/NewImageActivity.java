@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.snackbar.Snackbar;
@@ -71,7 +72,6 @@ public class NewImageActivity extends AppCompatActivity {
 
         // required by Android 6.0 +
         checkPermissions(getApplicationContext());
-
         initEasyImage();
 
         imagePreview = findViewById(R.id.preview);
@@ -81,7 +81,12 @@ public class NewImageActivity extends AppCompatActivity {
         fabGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EasyImage.openGallery(getActivity(), 0);
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    EasyImage.openGallery(getActivity(), 0);
+                } else {
+                    Toast.makeText(getApplicationContext(),"You need to enable file storage access permission to do that.",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -90,7 +95,12 @@ public class NewImageActivity extends AppCompatActivity {
         fabCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EasyImage.openCamera(getActivity(), 0);
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    EasyImage.openCamera(getActivity(), 0);
+                } else {
+                    Toast.makeText(getApplicationContext(),"You need to enable camera access permission to do that.",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -98,7 +108,6 @@ public class NewImageActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 AutoCompleteTextView photoName = findViewById(R.id.photo_name);
                 AutoCompleteTextView photoDescription = findViewById(R.id.photo_description);
                 String name = photoName.getText().toString();
