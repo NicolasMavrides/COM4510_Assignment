@@ -22,7 +22,7 @@ public interface PhotoDAO {
     @Delete
     void deletePhoto(Photo photo);
 
-    @Query("SELECT * FROM Photo ORDER BY date ASC")
+    @Query("SELECT * FROM Photo ORDER BY date DESC")
     LiveData<List<Photo>> retrieveAllPhotos();
 
     @Query("SELECT * FROM Photo WHERE title = :title")

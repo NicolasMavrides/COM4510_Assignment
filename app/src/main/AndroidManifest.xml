@@ -36,7 +36,7 @@
         </activity>
 
         <activity android:name="uk.ac.shef.oak.com4510.ShowImageActivity" />
-        <activity android:name="uk.ac.shef.oak.com4510.RouteActivity" />
+        <activity android:name="uk.ac.shef.oak.com4510.ShowTripActivity" />
         <activity android:name="uk.ac.shef.oak.com4510.MapsActivity" />
         <activity android:name="uk.ac.shef.oak.com4510.NewImageActivity"/>
         <activity android:name="uk.ac.shef.oak.com4510.EndTripActivity"/>
