@@ -42,10 +42,6 @@ public class HomeFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
-
-
-
-
        /* myList.add(new ListElement(R.drawable.joe1, "Good Morning",
                 "Just wanted to say hello 1"));
 
