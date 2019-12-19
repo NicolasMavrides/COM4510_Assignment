@@ -5,24 +5,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Converter class for latitude and longitude values. Converts between types String and List<Float>
+ * so that values can be stored in single Room database entry and likewise be accessed as a list
+ * of floats for the application functionalities
+ */
+
 public class LatLngConverter {
     @TypeConverter
     public List<Float> storedStringToFloat(String value) {
-        List<String> stringLat = Arrays.asList(value.split("\\s*,\\s*"));
-        List<Float> lats = new ArrayList<>();
-        for (String lat : stringLat){
-            lats.add(Float.parseFloat(lat));
+        List<String> string = Arrays.asList(value.split("\\s*,\\s*"));
+        List<Float> floats = new ArrayList<>();
+        for (String val : string){
+            floats.add(Float.parseFloat(val));
         }
-        return lats;
+        return floats;
     }
 
     @TypeConverter
-    public String floatToStoredString(List<Float> latitudes) {
-        String value = "";
+    public String floatToStoredString(List<Float> values) {
+        String strValue = "";
 
-        for (Float lat : latitudes)
-            value += lat + ",";
+        for (Float val : values)
+            strValue += val + ",";
 
-        return value;
+        return strValue;
     }
 }

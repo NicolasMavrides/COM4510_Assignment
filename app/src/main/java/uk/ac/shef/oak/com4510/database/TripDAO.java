@@ -12,7 +12,9 @@ import androidx.room.Query;
 
 import java.util.List;
 
-
+/**
+ * DAO for Trips
+ */
 @Dao
 public interface TripDAO {
     @Insert

@@ -7,6 +7,10 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+/**
+ * Trip class for photo database entity in Rooms Stored seperately from Photos in Trip table.
+ * Photos for a specific trip are accessible in photo_ids by their unique ID number.
+ */
 
 @Entity(indices=@Index(value={"name"}))
 public class Trip {

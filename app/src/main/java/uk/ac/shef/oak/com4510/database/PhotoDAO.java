@@ -12,6 +12,9 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
+/**
+ * DAO for Photos
+ */
 @Dao
 public interface PhotoDAO {
     @Insert

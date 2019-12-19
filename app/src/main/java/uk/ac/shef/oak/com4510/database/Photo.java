@@ -8,15 +8,11 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import static androidx.room.ForeignKey.CASCADE;
-
-
-/*,
-        foreignKeys = @ForeignKey(entity = Trip.class,
-        parentColumns = "photo_id",
-        childColumns = "trip_id",
-        onDelete = CASCADE))
-*/
+/**
+ * Photo class for photo database entity in Rooms
+ * Stored seperately from Trips in Photo table and are accessible from trips by
+ * their unique ID number.
+ */
 
 @Entity(indices={@Index(value={"title"})})
 public class Photo {
@@ -31,9 +27,6 @@ public class Photo {
     private int temperature;
     private int pressure;
 
-   /* @ColumnInfo(name = "trip_fk")
-    private int trip_id; */
-
     public Photo(String title, String description, String file_path, float latitude, float longitude, int temperature, int pressure) {
         this.title= title;
         this.description= description;
@@ -44,9 +37,8 @@ public class Photo {
         this.pressure= pressure;
     }
 
-
+    // Getter and Setter methods
     @androidx.annotation.NonNull
-
     public int getPhoto_id() {
         return photo_id;
     }
