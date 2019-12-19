@@ -7,7 +7,9 @@ package uk.ac.shef.oak.com4510;
 //////////////////////////////////////////////////
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +31,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,6 +39,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -55,13 +59,20 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 
 import uk.ac.shef.oak.com451.R;
-import uk.ac.shef.oak.com4510.database.LatLngConverter;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.PhotoDAO;
 import uk.ac.shef.oak.com4510.database.Trip;
+import uk.ac.shef.oak.com4510.database.TripDAO;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
+import uk.ac.shef.oak.com4510.sensors.Accelerometer;
+import uk.ac.shef.oak.com4510.sensors.Barometer;
+import uk.ac.shef.oak.com4510.sensors.Thermometer;
 import uk.ac.shef.oak.com4510.ui.newtrip.StoptripDialogFragment;
+import uk.ac.shef.oak.com4510.utilities.Notification;
 
+/**
+ * Maps Activity is the activity which takes care of controlling the route tracking and its functionalities.
+ * */
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
 
     //////////////////////////////////////////////////
@@ -117,9 +128,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String mLastUpdateTime;
     private SharedPreferences prefs;
     private ProcessMainClass bck;
-
-    private MyRepository mRepository;
-    private LatLngConverter lc;
+    private TripDAO tdao;
 
     //////////////////////////////////////////////////
     //                                              //
@@ -127,6 +136,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //                                              //
     //////////////////////////////////////////////////
 
+    /**
+     * On Create initializes all variables and updates activity based on shared preferences and intent data.
+     * */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,8 +147,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
-
-        mRepository = new MyRepository(getApplication());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -149,7 +159,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 if (mButtonStart.isEnabled()) {
                     // start sensing
-//                    startLocationUpdates(getApplicationContext());
                     startNVELocationUpdates(getApplicationContext());
                     if (mButtonPause != null)
                         mButtonPause.setEnabled(true);
@@ -163,12 +172,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        // pause button initialization
         mButtonPause = findViewById(R.id.button_pause);
         mButtonPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mButtonPause.isEnabled()) {
-//                    stopLocationUpdates();
                     pauseNVELocationUpdates();
                     if (mButtonStart != null)
                         mButtonStart.setEnabled(true);
@@ -193,6 +202,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        // photo button initialization
         FloatingActionButton addPhoto = findViewById(R.id.add_photo);
         addPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -215,6 +225,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mButtonPause.setEnabled(false);
         }
 
+        // set boolean values depending on shared preferences
         if (prefs.getString("tracking", "DEFAULT").equals("started") || prefs.getString("tracking", "DEFAULT").equals("paused")){
             already_started = true;
             start_trip = false;
@@ -263,12 +274,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //                                              //
     //////////////////////////////////////////////////
 
+    /**
+     * On resume - currently empty.
+     */
     @Override
     protected void onResume() {
         super.onResume();
     }
 
-    // track and show time
+    /**
+     * Tracks and shows tracking time.
+     */
     public Runnable runnable = new Runnable() {
 
         public void run() {
@@ -329,21 +345,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
 
+            // show markers of pictures taken during this trip if any
             String[] pids = prefs.getString("photo_ids", "").split(";");
             for (String pid:pids){
                 try {
                     Photo nphoto = pdao.retrievePhotoById(Integer.valueOf(pid)).get(0);
                     setMarker(new LatLng((double)nphoto.getLatitude(), (double)nphoto.getLongitude()),
-                            getMap(),
-                            nphoto.getTitle(),
-                            nphoto.getDescription()
-                    );
+                              getMap(),
+                              nphoto.getTitle(),
+                              nphoto.getDescription()
+                              );
                 }
                 catch (Exception e){
 
                 }
             }
 
+            // if there were any points, add them to the polyline, zoom in on the last one, and set the
+            // first one a start trip marker
             if (pts.size() > 0) {
                 polyline.setPoints(pts);
                 // adds start marker
@@ -356,10 +375,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 getMap().animateCamera(zoom);
             }
         }
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
     }
 
     //////////////////////////////////////////////////
@@ -368,7 +383,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //                                              //
     //////////////////////////////////////////////////
 
-    // make sure that we have permissions to access the location data
+    /**
+     * Makes sure we have the permissions needed to access the gps data.
+     */
     private void initLocations() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
@@ -394,45 +411,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             return;
         }
-    }
-
-    /**
-     * Starts Location Updates
-     */
-    private void startLocationUpdates(Context context) {
-        Intent intent = new Intent(context, LocationService.class);
-        mLocationPendingIntent = PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Task<Void> locationTask = mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                    mLocationPendingIntent);
-            if (locationTask != null) {
-                locationTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (e instanceof ApiException) {
-                            Log.w("MapsActivity", ((ApiException) e).getStatusMessage());
-                        } else {
-                            Log.w("MapsActivity", e.getMessage());
-                        }
-                    }
-                });
-
-                locationTask.addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d("MapsActivity", "restarting gps successful!");
-                    }
-                });
-            }
-        }
-    }
-
-    /**
-     * it stops the location updates
-     */
-    private void stopLocationUpdates(){
-        mFusedLocationClient.removeLocationUpdates(mLocationPendingIntent);
     }
 
     /**
@@ -499,32 +477,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
         }
     }
-
-    // Location callback gets the updates
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-            // get current location and time at which it was taken
-            mCurrentLocation = locationResult.getLastLocation();
-            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-            if (start_trip){
-                setMarker(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
-                        mMap, "Start of Trip", true, 14.0f);
-                start_trip = false;
-            }
-            // save in lists to add to rooms in the end
-//            lat_list.add(mCurrentLocation.getLatitude());
-//            lng_list.add(mCurrentLocation.getLongitude());
-//            time_list.add(mLastUpdateTime);
-            // track on console
-            //Log.i("MAP", "new location " + mCurrentLocation.toString());
-            // Move to current position on the map
-            // Note: might be annoying for the user if they manually moved the map
-//            if (mMap != null)
-//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 14.0f));
-        }
-    };
 
     //////////////////////////////////////////////////
     //                                              //
@@ -649,11 +601,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String pid = prefs.getString("photo_ids", "");
 
             // inserting trip in db
-            mRepository.insertTrip(new Trip(mdate, (String) timer.getText(), mtrip, "", avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng), pid));
-            //TODO resets photo ids
+            //TODO generate trip id, check that timer.getText is correct might need to cast it to a string
+            // please check the conversion stuff and see if they should be added here
+//            tdao.insertTrip(new Trip(tdao.generateTripId, // trip id
+//                                     mdate, // date
+//                                     timer.getText(), // time
+//                                     mtrip, // name
+//                                     "", // description
+//                                     avgTemp, // average temperature
+//                                     avgPress, // average pressure
+//                                     lat, // latitudes
+//                                     lng, // longitudes
+//                                     pid // photo ids
+//                    ));
+            // resets photo ids
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
             editor.apply();
+
+
+
+//            Intent intent = new Intent(getActivity(), MainActivity.class);
 
             Intent intent = new Intent(getActivity(), EndTripActivity.class);
             // passing values to the intent
@@ -667,6 +635,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * On cancel do nothing, continue tracking route.
+     * */
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         // no action taken, carry on
@@ -718,21 +689,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return total;
     }
-
-//
-//    static boolean isPausedOrStopped(){
-//        if(!mButtonPause.isEnabled() || !mButtonStop.isEnabled()){
-//            return false;
-//        }
-//        return true;
-//    }
-//
-//    static boolean buttonsE(){
-//        if(!mButtonPause.isEnabled() || !mButtonStop.isEnabled()){
-//            return false;
-//        }
-//        return true;
-//    }
 
 }
 
