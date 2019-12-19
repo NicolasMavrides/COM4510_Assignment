@@ -30,4 +30,6 @@
     <string name="trip_header_title">Trip Name</string>
     <string name="trip_header_date">Date</string>
     <string name="trip_header_time">Time</string>
+
+    <string name="endtrip_activity_done_button">Back to Trips</string>
 </resources>

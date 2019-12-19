@@ -62,7 +62,7 @@ import uk.ac.shef.oak.com4510.database.Trip;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
 import uk.ac.shef.oak.com4510.ui.newtrip.StoptripDialogFragment;
 
-public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, StoptripDialogFragment.NoticeDialogListener {
 
     //////////////////////////////////////////////////
     //                                              //
@@ -227,17 +227,21 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         mButtonStop.setEnabled(true);
 
         Bundle b = getIntent().getExtras();
+        mtrip = "Default Trip";
+        mdate = "Default Date";
         if(b != null) {
             mtrip = b.getString("name");
             mdate = b.getString("date");
-            if (prefs.getString("tracking", "DEFAULT").equals("started")) {
-                mtrip = prefs.getString("trip_name", "Default Trip");
-                mdate = prefs.getString("trip_date", "Default Date");
-            }
-            getSupportActionBar().setTitle(mtrip);
-            Log.i("date: ", mdate);
-            Log.i("route_name", mtrip);
         }
+
+        if (!prefs.getString("tracking", "stopped").equals("stopped")) {
+            mtrip = prefs.getString("trip_name", "Default Trip");
+            mdate = prefs.getString("trip_date", "Default Date");
+        }
+
+        getSupportActionBar().setTitle(mtrip);
+        Log.i("date: ", mdate);
+        Log.i("route_name", mtrip);
 
         // saves the trip name and date
         try {
@@ -304,7 +308,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(this);
 
         // if currently tracking then look at old polyline, add its points to this polyline
         // and zoom in on last point
@@ -357,13 +360,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                mLocationCallback, null /* Looper */);
-        return false;
     }
 
     //////////////////////////////////////////////////
@@ -468,7 +464,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * It stops the updates of the never ending background service.
      */
     private void stopNVELocationUpdates(){
-        ProcessMainClass bck = new ProcessMainClass();
+        bck = new ProcessMainClass();
         bck.stopService(getApplicationContext());
         // adds to the shared preferences that we have currently stopped tracking the location
         // that way, when the service is destroyed, it will know that it shouldn't restart itself
@@ -504,6 +500,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         }
     }
 
+<<<<<<< HEAD
 
     // Location callback gets the updates
     LocationCallback mLocationCallback = new LocationCallback() {
@@ -660,16 +657,76 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             editor.putString("photo_ids", "");
             editor.apply();
 
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            getActivity().startActivity(intent);
 
+<<<<<<< HEAD
             // TODO endTrip Activity
+=======
+
+//            Intent intent = new Intent(getActivity(), MainActivity.class);
+
+            Intent intent = new Intent(getActivity(), EndTripActivity.class);
+            // passing values to the intent
+            intent.putExtra("trip_name", mtrip);
+            intent.putExtra("time_taken", timer.getText());
+            intent.putExtra("date", mdate);
+            intent.putExtra("distance", polylineDistance(polyline));
+            intent.putExtra("avg_temp", avgTemp);
+            intent.putExtra("avg_press", avgPress);
+            getActivity().startActivity(intent);
+>>>>>>> 79b681cc0952180ffa1fbc3af04fd8d596dd29b9
         }
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         // no action taken, carry on
+    }
+
+    /**
+     *
+     * Taken from https://stackoverflow.com/questions/3694380/calculating-distance-between-two-points-using-latitude-longitude
+     *
+     * Calculate distance between two points in latitude and longitude taking
+     * into account height difference. If you are not interested in height
+     * difference pass 0.0. Uses Haversine method as its base.
+     *
+     * lat1, lon1 Start point lat2, lon2 End point el1 Start altitude in meters
+     * el2 End altitude in meters
+     * @returns Distance in Meters
+     */
+    private double distance(double lat1, double lat2, double lon1,
+                                  double lon2, double el1, double el2) {
+
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+
+        double height = el1 - el2;
+
+        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+
+        return Math.sqrt(distance);
+    }
+
+    /**
+     * @param poly - a polyline
+     * @return returns double representing the distance in meters covered by the given polyline.
+     */
+    private double polylineDistance(Polyline poly){
+        double total = 0d;
+        List<LatLng> pts = poly.getPoints();
+        for (int i =0; i<pts.size()-1; i++){
+            total += distance(pts.get(i).latitude, pts.get(i+1).latitude,
+                              pts.get(i).longitude, pts.get(i+1).longitude,
+                              0, 0);
+        }
+        return total;
     }
 
 //
