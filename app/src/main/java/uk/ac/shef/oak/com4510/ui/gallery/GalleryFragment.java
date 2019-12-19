@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class GalleryFragment extends Fragment {
     private List<ImageElement> myPictureList = new ArrayList<>();
-    private RecyclerView.Adapter  mAdapter;
+    private GalleryAdapter  mAdapter;
     private RecyclerView mRecyclerView;
     private GalleryViewModel galleryViewModel;
     private Fragment fragment;
