@@ -34,8 +34,7 @@ public class Photo {
    /* @ColumnInfo(name = "trip_fk")
     private int trip_id; */
 
-    public Photo(int photo_id, String title, String description, String file_path, float latitude, float longitude, int temperature, int pressure) {
-        this.photo_id= photo_id;
+    public Photo(String title, String description, String file_path, float latitude, float longitude, int temperature, int pressure) {
         this.title= title;
         this.description= description;
         this.file_path= file_path;
@@ -49,10 +48,6 @@ public class Photo {
     @androidx.annotation.NonNull
     public int getPhoto_id() {
         return photo_id;
-    }
-
-    public void setPhoto_id(int photo_id) {
-        this.photo_id = photo_id;
     }
 
     public String getTitle() {
