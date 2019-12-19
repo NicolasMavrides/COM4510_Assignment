@@ -116,8 +116,26 @@ public class NVELocationService extends Service {
             // get current location and time at which it was taken
             mCurrentLocation = locationResult.getLastLocation();
             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-            mCurrentPress = barometer.getCurrentPressure();
-            mCurrentTemp = thermometer.getCurrentTemperature();
+
+            SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            // try to get the sensor values, if not, it means that there is something that isn't working with
+            // one of the sensors or we don't have access to one of them
+            try {
+                mCurrentPress = barometer.getCurrentPressure();
+                editor.putFloat("current_pressure", mCurrentPress);
+            }
+            catch (Exception e){
+            }
+            try{
+                mCurrentTemp = thermometer.getCurrentTemperature();
+                editor.putFloat("current_temperature", mCurrentTemp);
+            }
+            catch (Exception e){
+            }
+
+            editor.putString("current_updateTime", mLastUpdateTime); // not necessary
+            editor.apply();
 
             // store update times, pressure and temperature in list
             mSavedUpdateTimes.add(mLastUpdateTime);
@@ -206,6 +224,15 @@ public class NVELocationService extends Service {
         }
     }
 
+    // gets average of float list - can refactor to numeric if needed
+    private float getAverage(List<Float> fList){
+        float avg = 0f;
+        for (float add:fList){
+            avg += add;
+        }
+        return avg/fList.size();
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -217,6 +244,24 @@ public class NVELocationService extends Service {
         if (tracking_mode.equals("started")) {
             Intent broadcastIntent = new Intent(Globals.RESTART_INTENT);
             sendBroadcast(broadcastIntent);
+        }
+        else if (tracking_mode.equals("stopped")){
+            SharedPreferences.Editor editor = prefs.edit();
+            if (mSavedTemp.size() > 0) {
+                editor.putFloat("average_temperature", getAverage(mSavedTemp));
+            }
+            else {
+                editor.remove("average_temperature");
+            }
+            if (mSavedPress.size() > 0) {
+                editor.putFloat("average_pressure", getAverage(mSavedPress));
+            }
+            else{
+                editor.remove("average_pressure");
+            }
+            editor.apply();
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+            accelerometer.stopAccelerometer();
         }
         else {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);

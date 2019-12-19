@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,6 +34,8 @@ import java.util.List;
 
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
+import uk.ac.shef.oak.com4510.database.Photo;
+import uk.ac.shef.oak.com4510.database.PhotoDAO;
 import uk.ac.shef.oak.com4510.ui.gallery.ImageElement;
 
 public class NewImageActivity extends AppCompatActivity {
@@ -43,17 +46,21 @@ public class NewImageActivity extends AppCompatActivity {
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 100;
     private String mdate;
     private String mtrip;
-    private String title_str;
-    private String snipp_str;
+    private float mcTemp, mcPress;
+    private String titleStr;
+    private String snippStr;
     private Activity activity;
     private ImageView imagePreview;
     private List<LatLng> polyline_points;
+    private SharedPreferences prefs;
+    private PhotoDAO newPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_image);
         activity = this;
+        prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
 
         Bundle b = getIntent().getExtras();
         if(b != null) {
@@ -101,22 +108,53 @@ public class NewImageActivity extends AppCompatActivity {
 
                 // TODO - when no trip name is entered
                 if ((name.replaceAll("\\s+","").length() != 0) || (description.replaceAll("\\s+","").length() != 0)) {
-                    //TODO Save button - add photo to DB
-
                     // Adds Marker to Map on saved spot
                     if (MapsActivity.getMap() != null) {
                         polyline_points = MapsActivity.getPolyline().getPoints();
-                        title_str = "No Title";
+                        //TODO add to photo obj
+                        titleStr = "No Title";
                         if (name.replaceAll("\\s+","").length() != 0){
-                            title_str = name;
+                            titleStr = name;
                         }
                         // could refactor to add stuff like temperature/ barometric press at location
-                        snipp_str = "No Description";
+                        snippStr = "No Description";
                         if (description.replaceAll("\\s+","").length() != 0){
-                            snipp_str = description;
+                            snippStr = description;
                         }
+                        mcTemp = prefs.getFloat("current_temperature", 100000f);
+                        Log.i("temp_recorded",mcTemp+"");
+                        if ( mcTemp != 100000f){
+                            snippStr += "\nTemperature: " + mcTemp + '\n';
+                        }
+                        else{
+                            snippStr += "\nTemperature: N/A \n";
+                        }
+                        mcPress = prefs.getFloat("current_pressure", 100000f);
+                        Log.i("press_recorded","" + mcPress);
+                        if (mcPress != 100000f){
+                            snippStr += "Barometric Pressure: " + mcPress;
+                        }
+                        else{
+                            snippStr += "Barometric Pressure: N/A \n";
+                        }
+
+
+                        // instead of saving the temperature and pressure in separate columns we could just add them
+                        // to the description, but in case we would want to compare points in the future for example
+                        // by temperature/pressure
+                        //TODO generate photoid and filepath then uncomment below
+//                        newPhoto.insertPhoto(new Photo(newPhoto.generatePhotoId(), // id
+//                                                       titleStr, // title
+//                                                       snippStr, // description
+//                                                       filepath, // photo file path
+//                                                       (float) polyline_points.get(polyline_points.size()-1).latitude, // latitude
+//                                                       (float) polyline_points.get(polyline_points.size()-1).longitude, // longitude
+//                                                        mcTemp, // temperature
+//                                                        mcPress // pressure
+//                        ));
+
                         MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
-                                MapsActivity.getMap(), title_str, true, 14.0f, snipp_str);
+                                MapsActivity.getMap(), titleStr, true, 14.0f, snippStr);
                     }
                 }
                 else {

@@ -129,15 +129,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         setActivity(this);
         start_trip = true;
 
-        Bundle b = getIntent().getExtras();
-        if(b != null) {
-            mtrip = b.getString("name");
-            mdate = b.getString("date");
-            getSupportActionBar().setTitle(mtrip);
-            Log.i("date: ", mdate);
-            Log.i("route_name", b.getString("name"));
-        }
-
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
 
@@ -218,6 +209,24 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             mButtonPause.setEnabled(false);
         }
         mButtonStop.setEnabled(true);
+
+        Bundle b = getIntent().getExtras();
+        if(b != null) {
+            mtrip = b.getString("name");
+            mdate = b.getString("date");
+            try {
+                if (prefs.getString("tracking", "DEFAULT").equals("tracking")) {
+                    mtrip = prefs.getString("trip_name", "Default Trip");
+                    mdate = prefs.getString("trip_date", "Default Date");
+                }
+            }
+            catch (Exception e){
+                // do nothing
+            }
+            getSupportActionBar().setTitle(mtrip);
+            Log.i("date: ", mdate);
+            Log.i("route_name", b.getString("name"));
+        }
 
         // saves the trip name and date
         try {
@@ -408,7 +417,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("tracking", "stopped");
             editor.apply();
-//            Log.i("Shared Preferences", "Working");
+            Log.i("Tracking set as", "Stopped");
         } catch (NullPointerException e) {
             Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
         }
@@ -429,7 +438,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("tracking", "paused");
             editor.apply();
-//            Log.i("Shared Preferences", "Working");
+            Log.i("Tracking set as", "Paused");
         } catch (NullPointerException e) {
             Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
         }
@@ -567,8 +576,20 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         if (mButtonStop!=null){ // just making sure that the stop button exists - not necessary
-            if (prefs.getString("tracking", "DEFAULT").equals("tracking")) {
+            if (prefs.getString("tracking", "DEFAULT").equals("started")) {
                 stopNVELocationUpdates();
+            }
+            else{
+                // update the shared prefs anw
+                try {
+                    SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("tracking", "stopped");
+                    editor.apply();
+                    Log.i("Tracking set as", "Stopped");
+                } catch (NullPointerException e) {
+                    Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
+                }
             }
             mButtonStop.setEnabled(false);
             // TODO endTrip Activity
