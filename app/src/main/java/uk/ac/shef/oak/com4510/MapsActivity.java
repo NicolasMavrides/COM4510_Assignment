@@ -677,7 +677,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 //            Intent intent = new Intent(getActivity(), MainActivity.class);
-            
+
             Intent intent = new Intent(getActivity(), EndTripActivity.class);
             // passing values to the intent
             intent.putExtra("trip_name", mtrip);
