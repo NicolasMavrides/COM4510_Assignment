@@ -500,8 +500,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-<<<<<<< HEAD
-
     // Location callback gets the updates
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
@@ -657,13 +655,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             editor.putString("photo_ids", "");
             editor.apply();
 
-
-<<<<<<< HEAD
-            // TODO endTrip Activity
-=======
-
-//            Intent intent = new Intent(getActivity(), MainActivity.class);
-
             Intent intent = new Intent(getActivity(), EndTripActivity.class);
             // passing values to the intent
             intent.putExtra("trip_name", mtrip);
@@ -673,7 +664,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             intent.putExtra("avg_temp", avgTemp);
             intent.putExtra("avg_press", avgPress);
             getActivity().startActivity(intent);
->>>>>>> 79b681cc0952180ffa1fbc3af04fd8d596dd29b9
         }
     }
 
