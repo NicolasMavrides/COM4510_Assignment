@@ -215,18 +215,18 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         if (prefs.getString("tracking", "DEFAULT").equals("started")){
             mButtonStart.setEnabled(false);
             mButtonPause.setEnabled(true);
-            start_trip = false;
         }
         else {
             mButtonStart.setEnabled(true);
             mButtonPause.setEnabled(false);
-            start_trip = true;
         }
 
         if (prefs.getString("tracking", "DEFAULT").equals("started") || prefs.getString("tracking", "DEFAULT").equals("paused")){
             already_started = true;
+            start_trip = false;
         }
         else{
+            start_trip = true;
             already_started = false;
         }
 
