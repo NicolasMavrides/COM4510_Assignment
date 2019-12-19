@@ -3,19 +3,24 @@ package uk.ac.shef.oak.com4510;
 import android.app.Application;
 import android.os.AsyncTask;
 import android.util.Log;
-
 import uk.ac.shef.oak.com4510.database.AppDatabase;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.PhotoDAO;
 import uk.ac.shef.oak.com4510.database.Trip;
 import uk.ac.shef.oak.com4510.database.TripDAO;
 import java.util.List;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+
+/**
+ *  Repository class for handling data operations of the application, between the data sources and
+ *  ViewModels.
+ */
+
 public class MyRepository {
 
+    // Live data lists for trips and photos
     private MutableLiveData<List<Trip>> tripsList = new MutableLiveData<>();
     private LiveData<List<Trip>> allTrips;
     private TripDAO tripDao;
@@ -24,6 +29,7 @@ public class MyRepository {
     private LiveData<List<Photo>> allPhotos;
     private PhotoDAO photoDao;
 
+    // Initialise the repository
     public MyRepository(Application application) {
         AppDatabase db;
         db = AppDatabase.getDatabase(application);
@@ -32,6 +38,9 @@ public class MyRepository {
         photoDao = db.photoDao();
         allPhotos = photoDao.retrieveAllPhotos();
     }
+
+
+    /* Data handling methods for the trip object */
 
     public void insertTrip(Trip newTrip) {
         InsertAsyncTripTask task = new InsertAsyncTripTask(tripDao);
@@ -50,6 +59,9 @@ public class MyRepository {
         task.execute(trip);
     }
 
+
+    /* Data handling methods for the photo object */
+
     public void insertPhoto(Photo newPhoto) {
         InsertAsyncPhotoTask task = new InsertAsyncPhotoTask(photoDao);
         task.execute(newPhoto);
@@ -67,6 +79,8 @@ public class MyRepository {
     }
 
 
+    /* Value setters for Trip and Photo lists when asynchronous task completed */
+
     private void asyncTripFinished(List<Trip> tripsResults) {
         tripsList.setValue(tripsResults);
     }
@@ -75,6 +89,8 @@ public class MyRepository {
         photosList.setValue(photosResults);
     }
 
+
+    /* Asynchronous query task for Trip */
 
     private static class QueryAsyncTripTask extends AsyncTask<String, Void, List<Trip>> {
 
@@ -96,6 +112,9 @@ public class MyRepository {
         }
     }
 
+
+    /* Asynchronous query task for Photo */
+
     private static class QueryAsyncPhotoTask extends AsyncTask<String, Void, List<Photo>> {
 
         private PhotoDAO asyncTaskPhotoDao;
@@ -116,6 +135,9 @@ public class MyRepository {
         }
     }
 
+
+    /* Asynchronous insert task for Photo */
+
     private static class InsertAsyncPhotoTask extends AsyncTask<Photo, Void, Void> {
 
         private PhotoDAO asyncTaskPhotoDao;
@@ -130,6 +152,9 @@ public class MyRepository {
             return null;
         }
     }
+
+
+    /* Asynchronous delete task for Trip */
 
     private static class DeleteAsyncPhotoTask extends AsyncTask<Photo, Void, Void> {
 
@@ -146,6 +171,8 @@ public class MyRepository {
         }
     }
 
+
+    /* Asynchronous insert task for Trip */
 
     private static class InsertAsyncTripTask extends AsyncTask<Trip, Void, Void> {
 
@@ -164,6 +191,9 @@ public class MyRepository {
         }
     }
 
+
+    /* Asynchronous delete task for Trip */
+
     private static class DeleteAsyncTripTask extends AsyncTask<Trip, Void, Void> {
 
         private TripDAO asyncTaskTripDao;
@@ -180,6 +210,8 @@ public class MyRepository {
     }
 
 
+    /* Return all or refined trip lists */
+
     public LiveData<List<Trip>> retrieveAllTrips() {
         return allTrips;
     }
@@ -188,6 +220,8 @@ public class MyRepository {
         return tripsList;
     }
 
+
+    /* Return all or refined photo lists */
 
     public LiveData<List<Photo>> retrieveAllPhotos() {
         return allPhotos;

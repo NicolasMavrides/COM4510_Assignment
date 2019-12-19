@@ -13,7 +13,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 /**
- * MainActivity of application
+ * Application MainActivity for implementation of main navigation layout and toolbar
  */
 
 public class MainActivity extends AppCompatActivity {
