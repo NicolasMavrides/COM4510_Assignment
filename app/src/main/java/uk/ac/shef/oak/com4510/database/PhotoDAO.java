@@ -29,6 +29,9 @@ public interface PhotoDAO {
     @Query("SELECT * FROM Photo WHERE title = :title")
     List<Photo> retrievePhotoByTitle(String title);
 
+    @Query("SELECT * FROM Photo WHERE photo_id = :photo_id")
+    List<Photo> retrievePhotoById(int photo_id);
+
     //TODO Other queries
 
     @Delete

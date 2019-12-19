@@ -32,12 +32,14 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -48,6 +50,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,6 +59,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 
 import uk.ac.shef.oak.com451.R;
+import uk.ac.shef.oak.com4510.database.LatitudeConverter;
+import uk.ac.shef.oak.com4510.database.LongitudeConverter;
+import uk.ac.shef.oak.com4510.database.Photo;
+import uk.ac.shef.oak.com4510.database.PhotoDAO;
+import uk.ac.shef.oak.com4510.database.Trip;
+import uk.ac.shef.oak.com4510.database.TripDAO;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
 import uk.ac.shef.oak.com4510.sensors.Accelerometer;
 import uk.ac.shef.oak.com4510.sensors.Barometer;
@@ -98,8 +108,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     public static PolylineOptions getPolylineOptions() {return polylineOptions;}
     public static Polyline getPolyline() {return polyline;}
     private static Boolean start_trip;
+    private Boolean already_started;
     static Boolean isStartPoint(){return start_trip;}
     static void stopStartPoint(){start_trip=false;}
+    private PhotoDAO pdao;
 
     // Timer Related Variables
     private TextView timer ;
@@ -115,6 +127,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private String mLastUpdateTime;
     private SharedPreferences prefs;
     private ProcessMainClass bck;
+    private TripDAO tdao;
 
     //////////////////////////////////////////////////
     //                                              //
@@ -127,16 +140,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setActivity(this);
-        start_trip = true;
-
-        Bundle b = getIntent().getExtras();
-        if(b != null) {
-            mtrip = b.getString("name");
-            mdate = b.getString("date");
-            getSupportActionBar().setTitle(mtrip);
-            Log.i("date: ", mdate);
-            Log.i("route_name", b.getString("name"));
-        }
 
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
@@ -209,7 +212,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 
         // button enabling
         prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
-        if (prefs.getString("tracking", "DEFAULT").equals("tracking")){
+        if (prefs.getString("tracking", "DEFAULT").equals("started")){
             mButtonStart.setEnabled(false);
             mButtonPause.setEnabled(true);
         }
@@ -217,7 +220,30 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             mButtonStart.setEnabled(true);
             mButtonPause.setEnabled(false);
         }
+
+        if (prefs.getString("tracking", "DEFAULT").equals("started") || prefs.getString("tracking", "DEFAULT").equals("paused")){
+            already_started = true;
+            start_trip = false;
+        }
+        else{
+            start_trip = true;
+            already_started = false;
+        }
+
         mButtonStop.setEnabled(true);
+
+        Bundle b = getIntent().getExtras();
+        if(b != null) {
+            mtrip = b.getString("name");
+            mdate = b.getString("date");
+            if (prefs.getString("tracking", "DEFAULT").equals("started")) {
+                mtrip = prefs.getString("trip_name", "Default Trip");
+                mdate = prefs.getString("trip_date", "Default Date");
+            }
+            getSupportActionBar().setTitle(mtrip);
+            Log.i("date: ", mdate);
+            Log.i("route_name", mtrip);
+        }
 
         // saves the trip name and date
         try {
@@ -280,11 +306,55 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                 .width(10)
                 .geodesic(true);
         polyline = mMap.addPolyline(polylineOptions);
+
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
 
+        // if currently tracking then look at old polyline, add its points to this polyline
+        // and zoom in on last point
+        prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+        if (already_started){
+            List<LatLng> pts = polyline.getPoints();
+            String[] lats = prefs.getString("polyline_lats", "").split(";");
+            String[] lngs = prefs.getString("polyline_lngs", "").split(";");
+            for (int i=0; i<lats.length; i++){
+                try{
+                    pts.add(new LatLng(Double.valueOf(lats[i]), Double.valueOf(lngs[i])));
+                }
+                catch (Exception e){
+
+                }
+            }
+            polyline.setPoints(pts);
+
+            String[] pids = prefs.getString("photo_ids", "").split(";");
+            for (String pid:pids){
+                try {
+                    Photo nphoto = pdao.retrievePhotoById(Integer.valueOf(pid)).get(0);
+                    setMarker(new LatLng((double)nphoto.getLatitude(), (double)nphoto.getLongitude()),
+                              getMap(),
+                              nphoto.getTitle(),
+                              nphoto.getDescription()
+                              );
+                }
+                catch (Exception e){
+
+                }
+            }
+
+            if (pts.size() > 0) {
+                // adds start marker
+                setMarker(pts.get(0), getMap(), "Start of Trip");
+                // zoom in on last point
+                CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+                // it centres the camera around the new location
+                getMap().moveCamera(CameraUpdateFactory.newLatLng(pts.get(pts.size() - 1)));
+                // it moves the camera to the selected zoom
+                getMap().animateCamera(zoom);
+            }
+        }
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
@@ -408,7 +478,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("tracking", "stopped");
             editor.apply();
-//            Log.i("Shared Preferences", "Working");
+            Log.i("Tracking set as", "Stopped");
         } catch (NullPointerException e) {
             Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
         }
@@ -429,7 +499,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("tracking", "paused");
             editor.apply();
-//            Log.i("Shared Preferences", "Working");
+            Log.i("Tracking set as", "Paused");
         } catch (NullPointerException e) {
             Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
         }
@@ -510,6 +580,17 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * @param pos  - LatLong Position on where to put the marker
      * @param map - map on where to put the marker
      * @param title - title to add to marker
+     * @param snippet - description of marker
+     */
+    static void setMarker(LatLng pos, GoogleMap map, String title, String snippet) {
+        setMarker(pos, map, title, false, -1, snippet);
+    }
+
+    /**
+     * Sets Marker on Map
+     * @param pos  - LatLong Position on where to put the marker
+     * @param map - map on where to put the marker
+     * @param title - title to add to marker
      * @param move_camera - if true sets camera on marker
      */
     static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera) {
@@ -534,8 +615,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * @param title - title to add to marker
      * @param move_camera - if true sets camera on marker
      * @param zoom - zoom of google maps view if move camera is set to true
+     * @param snippet - description of marker
      */
     static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera, float zoom, String snippet){
+        // TODO if possible - not sure it is - add code to resize marker details based on snippet and title sizes
         if (snippet.replaceAll("\\s+","").length() != 0) {
             map.addMarker(new MarkerOptions().position(pos).title(title).snippet(snippet));
         }
@@ -567,11 +650,57 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         if (mButtonStop!=null){ // just making sure that the stop button exists - not necessary
-            if (prefs.getString("tracking", "DEFAULT").equals("tracking")) {
+            if (prefs.getString("tracking", "DEFAULT").equals("started")) {
                 stopNVELocationUpdates();
             }
+            else{
+                // update the shared prefs anw
+                try {
+                    SharedPreferences prefs = getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("tracking", "stopped");
+                    editor.apply();
+                    Log.i("Tracking set as", "Stopped");
+                } catch (NullPointerException e) {
+                    Log.e("Shared Preferences", "error saving: are you testing?" + e.getMessage());
+                }
+            }
             mButtonStop.setEnabled(false);
+            handler.removeCallbacks(runnable);
+            // store trip in db
+            // store latitude and longitude lists
+            List<Float> lat = new LinkedList<>();
+            List<Float> lng = new LinkedList<>();
+            for (LatLng ltlg:getPolyline().getPoints()){
+                lat.add((float)ltlg.latitude);
+                lng.add((float)ltlg.longitude);
+            }
+            // 100000 are default values which can't be reached for temperature and pressure
+            // so they can be translated to N/A easily in the ui
+            float avgTemp = prefs.getFloat("average_temperature", 100000f);
+            float avgPress = prefs.getFloat("average_pressure", 100000f);
+            String pid = prefs.getString("photo_ids", "");
+
+            // inserting trip in db
+            //TODO generate trip id, check that timer.getText is correct might need to cast it to a string
+            // please check the conversion stuff and see if they should be added here
+//            tdao.insertTrip(new Trip(tdao.generateTripId, // trip id
+//                                     mdate, // date
+//                                     timer.getText(), // time
+//                                     mtrip, // name
+//                                     "", // description
+//                                     avgTemp, // average temperature
+//                                     avgPress, // average pressure
+//                                     lat, // latitudes
+//                                     lng, // longitudes
+//                                     pid // photo ids
+//                    ));
+            // resets photo ids
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("photo_ids", "");
             // TODO endTrip Activity
+
+
         }
     }
 
