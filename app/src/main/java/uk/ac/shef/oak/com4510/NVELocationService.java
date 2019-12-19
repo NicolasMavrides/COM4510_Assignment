@@ -31,6 +31,10 @@ import uk.ac.shef.oak.com4510.sensors.Barometer;
 import uk.ac.shef.oak.com4510.sensors.Thermometer;
 import uk.ac.shef.oak.com4510.utilities.Notification;
 
+/**
+ * NVE Location Service is a never ending background service which tracks the location, temperature and barometric pressure
+ * of the phone.
+ * */
 public class NVELocationService extends Service {
     // values
     private Location mCurrentLocation;
@@ -60,6 +64,9 @@ public class NVELocationService extends Service {
     private String tracking_mode;
     private Boolean trackingChecker;
 
+    /**
+     * On Create - Initializes variables.
+     */
     @Override
     public void onCreate(){
         super.onCreate();
@@ -76,20 +83,29 @@ public class NVELocationService extends Service {
         // initialize value storages for when the app isn't on the screen
         mSavedLocations = new LinkedList<>();
         mSavedUpdateTimes = new LinkedList<>();
-        mSavedPress = new LinkedList<>();
-        mSavedTemp = new LinkedList<>();
+        // shouldn't update temp and press on restart
+        if (mSavedTemp == null){
+            mSavedTemp = new LinkedList<>();
+        }
+        if (mSavedPress == null) {
+            mSavedPress = new LinkedList<>();
+        }
         // shouldn't update the saved route on restart
         if (savedRoute == null) {
             savedRoute = new LinkedList<>();
         }
         trackingChecker = false;
 
+        // if version higher than oreo then restart foreground service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             restartForeground();
         }
         mCurrentService = this;
     }
 
+    /**
+     * On Start Command - when the service is started, start sensing.
+     * */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -107,6 +123,7 @@ public class NVELocationService extends Service {
             restartForeground();
         }
 
+        // start sensing
         accelerometer.startAccelerometerRecording();
         barometer.startSensingPressure(accelerometer);
         thermometer.startSensingTemperature(accelerometer);
@@ -115,6 +132,9 @@ public class NVELocationService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Receives location updates and processes them.
+     * */
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -147,7 +167,7 @@ public class NVELocationService extends Service {
             mSavedUpdateTimes.add(mLastUpdateTime);
             mSavedPress.add(mCurrentPress);
             mSavedTemp.add(mCurrentTemp);
-            Log.i("test",mCurrentLocation.toString());
+//            Log.i("test",mCurrentLocation.toString());
             if (MapsActivity.getActivity()!=null)
                 // if the activity is not null, then on callback
                 // any modification of the user interface must be done on the UI Thread. The Intent Service is running
@@ -183,8 +203,6 @@ public class NVELocationService extends Service {
                                 MapsActivity.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())));
                                 // it moves the camera to the selected zoom
                                 MapsActivity.getMap().animateCamera(zoom);
-                                        /*MapsActivity.getMap().addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                                                .title(mLastUpdateTime));*/
                             }
                         } catch (Exception e ){
                             Log.e("LocationService", "Error cannot write on map "+e.getMessage());
@@ -235,7 +253,9 @@ public class NVELocationService extends Service {
         }
     }
 
-    // gets average of float list - can refactor to numeric if needed
+    /**
+     * Gets average of float list - can refactor to numeric if needed.
+     **/
     private float getAverage(List<Float> fList){
         float avg = 0f;
         for (float add:fList){
@@ -244,6 +264,10 @@ public class NVELocationService extends Service {
         return avg/fList.size();
     }
 
+    /**
+     * On Destroy, if tracking was active, then restart the service, if not, don't, and do actions according to
+     * tracking status.
+     * */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -256,6 +280,8 @@ public class NVELocationService extends Service {
             Intent broadcastIntent = new Intent(Globals.RESTART_INTENT);
             sendBroadcast(broadcastIntent);
         }
+        // if stopped calculate the average temperature and pressure and store them in the shared preferences
+        // also stop the service
         else if (tracking_mode.equals("stopped")){
             SharedPreferences.Editor editor = prefs.edit();
             if (mSavedTemp.size() > 0) {
@@ -271,10 +297,10 @@ public class NVELocationService extends Service {
                 editor.remove("average_pressure");
             }
             editor.apply();
-            savedRoute = new LinkedList<>();
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             accelerometer.stopAccelerometer();
         }
+        // if paused, stop the service
         else {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             accelerometer.stopAccelerometer();
