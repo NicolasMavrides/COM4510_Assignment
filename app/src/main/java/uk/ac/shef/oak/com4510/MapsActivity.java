@@ -45,6 +45,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -119,7 +122,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ProcessMainClass bck;
 
     private MyRepository mRepository;
-    private LatLngConverter lc;
+    private LatLngConverter lc = new LatLngConverter();
 
     //////////////////////////////////////////////////
     //                                              //
@@ -182,7 +185,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         // Stop Button Initialization
-        mButtonStop = (Button) findViewById(R.id.button_stop);
+        mButtonStop = findViewById(R.id.button_stop);
         // if Stop is clicked, ask the user if they're sure they want to stop
         // if they are then show them the end screen with a go Home/gallery button(s)
         mButtonStop.setOnClickListener(new View.OnClickListener() {
@@ -198,8 +201,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), NewImageActivity.class);
-                intent.putExtra("name", mtrip);
-                intent.putExtra("date", mdate);
                 getActivity().startActivity(intent);
             }
         });
@@ -356,10 +357,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 getMap().animateCamera(zoom);
             }
         }
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
     }
 
     //////////////////////////////////////////////////
@@ -649,13 +646,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String pid = prefs.getString("photo_ids", "");
 
             // inserting trip in db
-            mRepository.insertTrip(new Trip(mdate, (String) timer.getText(), mtrip, "", avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng), pid));
-            //TODO resets photo ids
+            mRepository.insertTrip(new Trip(mdate, mtrip, "", avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng), pid));
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
             editor.apply();
 
             Intent intent = new Intent(getActivity(), EndTripActivity.class);
+
             // passing values to the intent
             intent.putExtra("trip_name", mtrip);
             intent.putExtra("time_taken", timer.getText());

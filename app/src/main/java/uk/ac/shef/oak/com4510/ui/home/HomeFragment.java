@@ -46,7 +46,9 @@ public class HomeFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
         Trip newtrip = new Trip("test", "date", "time", "falls", 20, 45, "5", "6", "1, 2, 3, 4" );
+        Trip newtrip2 = new Trip("test2", "date2", "time2", "falls", 20, 45, "5", "6", "1, 2, 3, 4" );
         homeViewModel.insertTrip(newtrip);
+        homeViewModel.insertTrip(newtrip2);
 
         homeViewModel.getAllTrips().observe(this, new Observer<List<Trip>>() {
             @Override

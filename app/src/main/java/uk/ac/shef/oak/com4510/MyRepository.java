@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -19,6 +20,7 @@ public class MyRepository {
     private MutableLiveData<List<Trip>> tripsList = new MutableLiveData<>();
     private LiveData<List<Trip>> allTrips;
     private TripDAO tripDao;
+    private static long photoId;
 
     private MutableLiveData<List<Photo>> photosList = new MutableLiveData<>();
     private LiveData<List<Photo>> allPhotos;
@@ -50,8 +52,8 @@ public class MyRepository {
         task.execute(trip);
     }
 
-    public void insertPhoto(Photo newPhoto) {
-        InsertAsyncPhotoTask task = new InsertAsyncPhotoTask(photoDao);
+    public void insertPhoto(Photo newPhoto, SharedPreferences prefs) {
+        InsertAsyncPhotoTask task = new InsertAsyncPhotoTask(photoDao, prefs);
         task.execute(newPhoto);
     }
 
@@ -66,6 +68,9 @@ public class MyRepository {
         task.execute(photo);
     }
 
+    public void setPhotoID(long id){
+        photoId = id;
+    }
 
     private void asyncTripFinished(List<Trip> tripsResults) {
         tripsList.setValue(tripsResults);
@@ -117,16 +122,22 @@ public class MyRepository {
     }
 
     private static class InsertAsyncPhotoTask extends AsyncTask<Photo, Void, Void> {
-
         private PhotoDAO asyncTaskPhotoDao;
+        private SharedPreferences prefs;
 
-        InsertAsyncPhotoTask(PhotoDAO photodao) {
+        InsertAsyncPhotoTask(PhotoDAO photodao, SharedPreferences prefs) {
             asyncTaskPhotoDao = photodao;
+            this.prefs = prefs;
         }
 
         @Override
         protected Void doInBackground(final Photo... params) {
-            asyncTaskPhotoDao.insertPhoto(params[0]);
+            photoId = asyncTaskPhotoDao.insertPhoto(params[0]);
+            String currentPhotoIds = prefs.getString("photo_ids", "");
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("photo_ids", currentPhotoIds+photoId+";");
+            editor.apply();
+
             return null;
         }
     }

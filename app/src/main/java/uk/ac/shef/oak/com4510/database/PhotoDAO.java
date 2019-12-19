@@ -18,12 +18,12 @@ public interface PhotoDAO {
     void insertAll(Photo... photodata);
 
     @Insert
-    void insertPhoto(Photo photodata);
+    long insertPhoto(Photo photodata);
 
     @Delete
     void deletePhoto(Photo photo);
 
-    @Query("SELECT * FROM Photo ORDER BY title ASC")
+    @Query("SELECT * FROM Photo ORDER BY date ASC")
     LiveData<List<Photo>> retrieveAllPhotos();
 
     @Query("SELECT * FROM Photo WHERE title = :title")

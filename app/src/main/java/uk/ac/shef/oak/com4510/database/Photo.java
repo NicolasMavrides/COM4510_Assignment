@@ -22,36 +22,44 @@ import static androidx.room.ForeignKey.CASCADE;
 public class Photo {
     @PrimaryKey(autoGenerate = true)
     @androidx.annotation.NonNull
-    private int photo_id=0;
+    private long photo_id=0;
     private String title;
     private String description;
     private String file_path;
+    private String date;
     private float latitude;
     private float longitude;
-    private int temperature;
-    private int pressure;
+    private float temperature;
+    private float pressure;
 
    /* @ColumnInfo(name = "trip_fk")
     private int trip_id; */
 
-    public Photo(String title, String description, String file_path, float latitude, float longitude, int temperature, int pressure) {
+    public Photo(String title, String date, String description, String file_path, float latitude, float longitude, float temperature, float pressure) {
         this.title= title;
         this.description= description;
-        this.file_path= file_path;
+        this.file_path = file_path;
         this.latitude= latitude;
         this.longitude= longitude;
         this.temperature= temperature;
         this.pressure= pressure;
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 
     @androidx.annotation.NonNull
 
-    public int getPhoto_id() {
+    public long getPhoto_id() {
         return photo_id;
     }
 
-    public void setPhoto_id(int photo_id) {
+    public void setPhoto_id(long photo_id) {
         this.photo_id = photo_id;
     }
 
@@ -95,19 +103,19 @@ public class Photo {
         this.longitude = longitude;
     }
 
-    public int getTemperature() {
+    public float getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(int temperature) {
+    public void setTemperature(float temperature) {
         this.temperature = temperature;
     }
 
-    public int getPressure() {
+    public float getPressure() {
         return pressure;
     }
 
-    public void setPressure(int pressure) {
+    public void setPressure(float pressure) {
         this.pressure = pressure;
     }
 }

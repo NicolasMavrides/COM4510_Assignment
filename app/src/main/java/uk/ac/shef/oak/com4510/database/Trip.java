@@ -14,7 +14,6 @@ public class Trip {
     @androidx.annotation.NonNull
     private int trip_id=0;
     private String date;
-    private String time;
     private String name;
     private String description;
     private float av_temperature;
@@ -24,10 +23,9 @@ public class Trip {
     private String photo_ids;
 
 
-    public Trip(String date, String time, String name, String description, float av_temperature, float av_pressure, String latitudes, String longitudes, String photo_ids) {
+    public Trip(String date, String name, String description, float av_temperature, float av_pressure, String latitudes, String longitudes, String photo_ids) {
         this.trip_id= trip_id;
         this.date= date;
-        this.time= time;
         this.name= name;
         this.description= description;
         this.av_temperature= av_temperature;
@@ -52,14 +50,6 @@ public class Trip {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
     }
 
     public String getName() {

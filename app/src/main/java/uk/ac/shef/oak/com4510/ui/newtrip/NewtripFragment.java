@@ -35,11 +35,11 @@ public class NewtripFragment extends Fragment {
                 ViewModelProviders.of(this).get(NewtripViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_newtrip, container, false);
         final TextView textView = root.findViewById(R.id.date);
-        Date c = Calendar.getInstance().getTime();
-        System.out.println("Current time => " + c);
+        final Date c = Calendar.getInstance().getTime();
 
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
-        final String formattedDate = df.format(c);
+        String formattedDate = df.format(c);
+
         Log.i("date: ", formattedDate);
         textView.setText(formattedDate);
 
@@ -53,18 +53,14 @@ public class NewtripFragment extends Fragment {
                 AutoCompleteTextView titleView = root.findViewById(R.id.route_name);
                 String title = titleView.getText().toString();
                 Log.i("title", title);
-                /*AutoCompleteTextView descriptionView = view.findViewById(R.id.description);
-                String description = descriptionView.getText().toString();*/
 
-                // hiding the keyboard after button click
-                // TODO - when no trip name is entered
                 if (title.replaceAll("\\s+","").length() != 0) { // makes sure that title is not empty
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(titleView.getWindowToken(), 0);
                     Log.i("title: ", title);
                     Intent intent = new Intent(getActivity(), MapsActivity.class);
                     intent.putExtra("name", title);
-                    intent.putExtra("date", formattedDate);
+                    intent.putExtra("dateTime", String.valueOf(c));
                     getActivity().startActivity(intent);
                 }
                 else {

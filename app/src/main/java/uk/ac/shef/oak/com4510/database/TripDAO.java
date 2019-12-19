@@ -24,7 +24,7 @@ public interface TripDAO {
     @Delete
     void deleteTrip(Trip trip);
 
-    @Query("SELECT * FROM Trip ORDER BY name ASC")
+    @Query("SELECT * FROM Trip ORDER BY date ASC")
     LiveData<List<Trip>> retrieveAllTrips();
 
     @Query("SELECT * FROM Trip WHERE name = :title")

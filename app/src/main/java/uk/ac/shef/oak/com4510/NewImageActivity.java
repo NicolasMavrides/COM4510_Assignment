@@ -1,17 +1,13 @@
 package uk.ac.shef.oak.com4510;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import pl.aprilapps.easyphotopicker.EasyImage;
 import uk.ac.shef.oak.com451.R;
-
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -24,19 +20,17 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.snackbar.Snackbar;
-
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-
 import pl.aprilapps.easyphotopicker.DefaultCallback;
-import pl.aprilapps.easyphotopicker.EasyImage;
 import uk.ac.shef.oak.com4510.database.Photo;
-import uk.ac.shef.oak.com4510.database.PhotoDAO;
-import uk.ac.shef.oak.com4510.ui.gallery.ImageElement;
 
 public class NewImageActivity extends AppCompatActivity {
 
@@ -44,7 +38,6 @@ public class NewImageActivity extends AppCompatActivity {
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
     private static final int REQUEST_CAMERA = 1889;
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 100;
-    private String mdate;
     private String mtrip;
     private float mcTemp, mcPress;
     private String titleStr;
@@ -53,7 +46,9 @@ public class NewImageActivity extends AppCompatActivity {
     private ImageView imagePreview;
     private List<LatLng> polyline_points;
     private SharedPreferences prefs;
-    private PhotoDAO newPhoto;
+    private String filePath;
+
+    private MyRepository mRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +57,9 @@ public class NewImageActivity extends AppCompatActivity {
         activity = this;
         prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
 
-        Bundle b = getIntent().getExtras();
-        if(b != null) {
-            mtrip = b.getString("name");
-            mdate = b.getString("date");
-            getSupportActionBar().setTitle("Add a photo");
-        }
+        mRepository = new MyRepository(getApplication());
+
+        getSupportActionBar().setTitle("Add a photo");
 
         // required by Android 6.0 +
         checkPermissions(getApplicationContext());
@@ -142,27 +134,22 @@ public class NewImageActivity extends AppCompatActivity {
                         // instead of saving the temperature and pressure in separate columns we could just add them
                         // to the description, but in case we would want to compare points in the future for example
                         // by temperature/pressure
-                        //TODO generate photoid and filepath then uncomment below
-//                        int photoId = newPhoto.generatePhotoId();
-//                        newPhoto.insertPhoto(new Photo(photoId, // id
-//                                                       titleStr, // title
-//                                                       snippStr, // description
-//                                                       filepath, // photo file path
-//                                                       (float) polyline_points.get(polyline_points.size()-1).latitude, // latitude
-//                                                       (float) polyline_points.get(polyline_points.size()-1).longitude, // longitude
-//                                                        mcTemp, // temperature
-//                                                        mcPress // pressure
-//                        ));
 
-                        //TODO add generated photoid into shared preferences (uncomment below)
-//                        String currentPhotoIds = prefs.getString("photo_ids", "");
-//                        SharedPreferences.Editor editor = prefs.edit();
-//                        editor.putString("photo_ids", currentPhotoIds+photoId+";");
-//                        editor.apply();
+                        // inserting photo in db
+                        float latitude = (float) polyline_points.get(polyline_points.size()-1).latitude;
+                        float longitude = (float) polyline_points.get(polyline_points.size()-1).longitude;
+
+                        Date c = Calendar.getInstance().getTime();
+
+                        //TODO insert date or time object
+                        mRepository.insertPhoto(new Photo(titleStr, String.valueOf(c), snippStr, filePath, latitude, longitude, mcTemp, mcPress), prefs);
 
                         MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
                                 MapsActivity.getMap(), titleStr, true, 14.0f, snippStr);
                     }
+
+                    Toast.makeText(getActivity(),"Image added to your journey", Toast.LENGTH_LONG).show();
+                    thread.start();
                 }
                 else {
                     // turn into public func related to activity
@@ -173,6 +160,18 @@ public class NewImageActivity extends AppCompatActivity {
         });
     }
 
+    Thread thread = new Thread(){
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(Toast.LENGTH_LONG);
+                getActivity().finish();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
     /**
      * it initialises EasyImage
      */
@@ -180,7 +179,7 @@ public class NewImageActivity extends AppCompatActivity {
         EasyImage.configuration(this)
                 .setImagesFolderName("EasyImage sample")
                 // it adds new pictures to the gallery
-                .setCopyTakenPhotosToPublicGalleryAppFolder(true)
+                .setCopyTakenPhotosToPublicGalleryAppFolder(false)
                 .setCopyPickedImagesToPublicGalleryAppFolder(false)
                 // it allows to select multiple pictures in the gallery
                 .setAllowMultiplePickInGallery(false);
@@ -242,8 +241,9 @@ public class NewImageActivity extends AppCompatActivity {
      */
     private void onPhotosReturned(List<File> returnedPhotos) {
         File returnedPhoto = returnedPhotos.get(0);
-        Bitmap myBitmap = BitmapFactory.decodeFile(returnedPhoto.getAbsolutePath());
-        imagePreview.setImageBitmap(myBitmap);
+        filePath = returnedPhoto.getAbsolutePath();
+        Bitmap photoBitmap = BitmapFactory.decodeFile(filePath);
+        imagePreview.setImageBitmap(photoBitmap);
     }
 
     public Activity getActivity() {
