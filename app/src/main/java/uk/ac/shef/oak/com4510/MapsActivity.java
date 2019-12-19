@@ -32,12 +32,14 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -104,6 +106,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     public static PolylineOptions getPolylineOptions() {return polylineOptions;}
     public static Polyline getPolyline() {return polyline;}
     private static Boolean start_trip;
+    private Boolean already_started;
     static Boolean isStartPoint(){return start_trip;}
     static void stopStartPoint(){start_trip=false;}
 
@@ -134,7 +137,6 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setActivity(this);
-        start_trip = true;
 
         timer = findViewById(R.id.timer);
         handler = new Handler() ;
@@ -210,11 +212,14 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         if (prefs.getString("tracking", "DEFAULT").equals("started")){
             mButtonStart.setEnabled(false);
             mButtonPause.setEnabled(true);
-            // TODO add polyline and markers to re-generated map and zoom in on last point
+            start_trip = false;
+            already_started = true;
         }
         else {
             mButtonStart.setEnabled(true);
             mButtonPause.setEnabled(false);
+            start_trip = true;
+            already_started = false;
         }
         mButtonStop.setEnabled(true);
 
@@ -222,18 +227,13 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
         if(b != null) {
             mtrip = b.getString("name");
             mdate = b.getString("date");
-            try {
-                if (prefs.getString("tracking", "DEFAULT").equals("tracking")) {
-                    mtrip = prefs.getString("trip_name", "Default Trip");
-                    mdate = prefs.getString("trip_date", "Default Date");
-                }
-            }
-            catch (Exception e){
-                // do nothing
+            if (prefs.getString("tracking", "DEFAULT").equals("started")) {
+                mtrip = prefs.getString("trip_name", "Default Trip");
+                mdate = prefs.getString("trip_date", "Default Date");
             }
             getSupportActionBar().setTitle(mtrip);
             Log.i("date: ", mdate);
-            Log.i("route_name", b.getString("name"));
+            Log.i("route_name", mtrip);
         }
 
         // saves the trip name and date
@@ -297,11 +297,43 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
                 .width(10)
                 .geodesic(true);
         polyline = mMap.addPolyline(polylineOptions);
+
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
 
+        // if currently tracking then look at old polyline, add its points to this polyline
+        // and zoom in on last point
+        prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
+        if (already_started){
+            List<LatLng> pts = polyline.getPoints();
+            String[] lats = prefs.getString("polyline_lats", "").split(";");
+            String[] lngs = prefs.getString("polyline_lngs", "").split(";");
+            for (int i=0; i<lats.length; i++){
+                try{
+                    pts.add(new LatLng(Double.valueOf(lats[i]), Double.valueOf(lngs[i])));
+                }
+                catch (Exception e){
+
+                }
+            }
+            polyline.setPoints(pts);
+
+            String[] pids = prefs.getString("photo_ids", "").split(";");
+            for (String pid:pids){
+                //TODO get all photos by id from db and use set marker to add marker, snippet(description), and title
+            }
+
+            if (pts.size() > 0) {
+                // zoom in on last point
+                CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+                // it centres the camera around the new location
+                getMap().moveCamera(CameraUpdateFactory.newLatLng(pts.get(pts.size() - 1)));
+                // it moves the camera to the selected zoom
+                getMap().animateCamera(zoom);
+            }
+        }
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
@@ -553,6 +585,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * @param zoom - zoom of google maps view if move camera is set to true
      */
     static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera, float zoom, String snippet){
+        // TODO if possible - not sure it is - add code to resize marker details based on snippet and title sizes
         if (snippet.replaceAll("\\s+","").length() != 0) {
             map.addMarker(new MarkerOptions().position(pos).title(title).snippet(snippet));
         }
@@ -629,7 +662,11 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 //                                     lng, // longitudes
 //                                     pid // photo ids
 //                    ));
+            // resets photo ids
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("photo_ids", "");
             // TODO endTrip Activity
+
 
         }
     }

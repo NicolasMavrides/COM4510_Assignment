@@ -46,10 +46,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
         String tracking_mode = prefs.getString("tracking", "DEFAULT");
 //        Log.i("Shared Preferences", tracking_mode);
-        if (tracking_mode.equals("started")) {
+        if (!tracking_mode.equals("stopped")) {
             Intent intent = new Intent(getActivity(), MapsActivity.class);
             getActivity().startActivity(intent);
-            // TODO in service add polyline storage and restoration
         }
     }
 }

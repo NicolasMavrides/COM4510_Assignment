@@ -36,6 +36,7 @@ public class NVELocationService extends Service {
     private Location mCurrentLocation;
     private String mLastUpdateTime;
     private Float mCurrentTemp, mCurrentPress;
+    private Polyline route;
 
     // list of values stored for when the app is removed/turned-off
     private List<Location> mSavedLocations;
@@ -150,7 +151,7 @@ public class NVELocationService extends Service {
                     public void run() {
                         try {
                             if (MapsActivity.getMap() != null) {
-                                Polyline route = MapsActivity.getPolyline();
+                                route = MapsActivity.getPolyline();
                                 List<LatLng> points = route.getPoints();
                                 // if the activity was null and tracking was running, when it is back, add the stored points to the polyline
                                 // and store the temperature and barometric pressure
@@ -283,6 +284,21 @@ public class NVELocationService extends Service {
         SharedPreferences prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
         tracking_mode = prefs.getString("tracking", "DEFAULT");
 //        Log.i("Shared Preferences", tracking_mode);
+        // if not stopped then store current polyline in preferences
+        if (!tracking_mode.equals("stopped")) {
+            String lats = "";
+            String lngs = "";
+            for (LatLng latlng : route.getPoints()) {
+                lats += latlng.latitude + ';';
+                lngs += latlng.longitude + ';';
+            }
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("polyline_lats", lats);
+            editor.putString("polyline_lngs", lngs);
+            editor.apply();
+        }
+
+        // restart service if tracking
         if (tracking_mode.equals("started")) {
             Intent broadcastIntent = new Intent(Globals.RESTART_INTENT);
             sendBroadcast(broadcastIntent);
