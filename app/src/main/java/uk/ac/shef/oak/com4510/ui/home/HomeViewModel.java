@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510.ui.home;
 
 import android.app.Application;
+import android.util.Log;
 
 import uk.ac.shef.oak.com4510.MyRepository;
 import uk.ac.shef.oak.com4510.database.Photo;
@@ -39,6 +40,7 @@ public class HomeViewModel extends AndroidViewModel {
     }
 
     public void insertTrip(Trip tripName) {
+        Log.i("HomeViewModel: ", "data submitted");
         mRepository.insertTrip(tripName);
     }
 
@@ -70,8 +72,6 @@ public class HomeViewModel extends AndroidViewModel {
     public void deletePhoto(Photo photoName) {
         mRepository.deletePhoto(photoName);
     }
-
-
     /*public LiveData<String> getText() {
         return mText;
     }*/

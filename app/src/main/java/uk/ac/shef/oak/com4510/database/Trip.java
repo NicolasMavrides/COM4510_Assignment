@@ -42,6 +42,10 @@ public class Trip {
         return trip_id;
     }
 
+    public void setTrip_id(int trip_id) {
+        this.trip_id = trip_id;
+    }
+
     public String getDate() {
         return date;
     }

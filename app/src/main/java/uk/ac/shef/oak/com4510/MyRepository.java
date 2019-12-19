@@ -2,6 +2,7 @@ package uk.ac.shef.oak.com4510;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import uk.ac.shef.oak.com4510.database.AppDatabase;
 import uk.ac.shef.oak.com4510.database.Photo;
@@ -34,6 +35,7 @@ public class MyRepository {
 
     public void insertTrip(Trip newTrip) {
         InsertAsyncTripTask task = new InsertAsyncTripTask(tripDao);
+        Log.i("Repositry: ", "data submitted");
         task.execute(newTrip);
     }
 
@@ -156,6 +158,8 @@ public class MyRepository {
         @Override
         protected Void doInBackground(final Trip... params) {
             asyncTaskTripDao.insertTrip(params[0]);
+            Log.i("AysncTask: ", "data submitted");
+            Log.i("Trip: ", params[0].getName());
             return null;
         }
     }
