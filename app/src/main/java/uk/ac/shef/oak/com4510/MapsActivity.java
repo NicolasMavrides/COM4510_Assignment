@@ -61,6 +61,8 @@ import androidx.fragment.app.DialogFragment;
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.database.LatitudeConverter;
 import uk.ac.shef.oak.com4510.database.LongitudeConverter;
+import uk.ac.shef.oak.com4510.database.Photo;
+import uk.ac.shef.oak.com4510.database.PhotoDAO;
 import uk.ac.shef.oak.com4510.database.Trip;
 import uk.ac.shef.oak.com4510.database.TripDAO;
 import uk.ac.shef.oak.com4510.restarter.RestartServiceBroadcastReceiver;
@@ -109,6 +111,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
     private Boolean already_started;
     static Boolean isStartPoint(){return start_trip;}
     static void stopStartPoint(){start_trip=false;}
+    private PhotoDAO pdao;
 
     // Timer Related Variables
     private TextView timer ;
@@ -322,10 +325,22 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
 
             String[] pids = prefs.getString("photo_ids", "").split(";");
             for (String pid:pids){
-                //TODO get all photos by id from db and use set marker to add marker, snippet(description), and title
+                try {
+                    Photo nphoto = pdao.retrievePhotoById(Integer.valueOf(pid)).get(0);
+                    setMarker(new LatLng((double)nphoto.getLatitude(), (double)nphoto.getLongitude()),
+                              getMap(),
+                              nphoto.getTitle(),
+                              nphoto.getDescription()
+                              );
+                }
+                catch (Exception e){
+
+                }
             }
 
             if (pts.size() > 0) {
+                // adds start marker
+                setMarker(pts.get(0), getMap(), "Start of Trip");
                 // zoom in on last point
                 CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
                 // it centres the camera around the new location
@@ -559,6 +574,17 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * @param pos  - LatLong Position on where to put the marker
      * @param map - map on where to put the marker
      * @param title - title to add to marker
+     * @param snippet - description of marker
+     */
+    static void setMarker(LatLng pos, GoogleMap map, String title, String snippet) {
+        setMarker(pos, map, title, false, -1, snippet);
+    }
+
+    /**
+     * Sets Marker on Map
+     * @param pos  - LatLong Position on where to put the marker
+     * @param map - map on where to put the marker
+     * @param title - title to add to marker
      * @param move_camera - if true sets camera on marker
      */
     static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera) {
@@ -583,6 +609,7 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLoc
      * @param title - title to add to marker
      * @param move_camera - if true sets camera on marker
      * @param zoom - zoom of google maps view if move camera is set to true
+     * @param snippet - description of marker
      */
     static void setMarker(LatLng pos, GoogleMap map, String title, boolean move_camera, float zoom, String snippet){
         // TODO if possible - not sure it is - add code to resize marker details based on snippet and title sizes
