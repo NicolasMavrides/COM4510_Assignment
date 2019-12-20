@@ -11,6 +11,10 @@ import androidx.lifecycle.AndroidViewModel;
 import uk.ac.shef.oak.com4510.database.Photo;
 import uk.ac.shef.oak.com4510.database.Trip;
 
+/**
+ * ViewModel for the Gallery Page
+ */
+
 public class GalleryViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
     private LiveData<List<Trip>> allTrips;

@@ -31,6 +31,10 @@ import java.util.List;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import uk.ac.shef.oak.com4510.database.Photo;
 
+/**
+ *  Application NewImageActivity for implementation of New Image page layout and functionality
+ */
+
 public class NewImageActivity extends AppCompatActivity {
 
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 100;
@@ -101,12 +105,10 @@ public class NewImageActivity extends AppCompatActivity {
                 Log.i("photo name: ", name);
                 Log.i("photo description: ", description);
 
-                // TODO - when no trip name is entered
                 if ((name.replaceAll("\\s+","").length() != 0) || (description.replaceAll("\\s+","").length() != 0)) {
                     // Adds Marker to Map on saved spot
                     if (MapsActivity.getMap() != null) {
                         polyline_points = MapsActivity.getPolyline().getPoints();
-                        //TODO add to photo obj
                         titleStr = "No Title";
                         if (name.replaceAll("\\s+","").length() != 0){
                             titleStr = name;

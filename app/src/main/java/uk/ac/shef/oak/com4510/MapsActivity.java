@@ -342,7 +342,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // zoom in on last point
                 CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
                 // it centres the camera around the new location
-                getMap().moveCamera(CameraUpdateFactory.newLatLng(pts.get(pts.size() - 1)));
+                getMap().moveCamera(CameraUpdateFactory.newLatLng(polyline.getPoints().get(pts.size() - 1)));
                 // it moves the camera to the selected zoom
                 getMap().animateCamera(zoom);
             }

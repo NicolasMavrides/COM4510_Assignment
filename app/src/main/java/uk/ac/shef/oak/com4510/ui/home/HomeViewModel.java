@@ -11,6 +11,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import java.util.List;
 
+
+/**
+ * ViewModel for the Home Page
+ */
+
 public class HomeViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
     private LiveData<List<Trip>> allTrips;
@@ -46,10 +51,6 @@ public class HomeViewModel extends AndroidViewModel {
         mRepository.findTrip(tripName);
     }
 
-    public void deleteTrip(Trip tripName) {
-        mRepository.deleteTrip(tripName);
-    }
-
 
     MutableLiveData<List<Photo>> getPhotoSearchResults() {
         return photosList;
@@ -66,12 +67,4 @@ public class HomeViewModel extends AndroidViewModel {
     public void findPhoto(String photoName) {
         mRepository.findPhoto(photoName);
     }
-
-    public void deletePhoto(Photo photoName) {
-        mRepository.deletePhoto(photoName);
-    }
-    /*public LiveData<String> getText() {
-        return mText;
-    }*/
-
 }
