@@ -63,6 +63,7 @@ public class NewtripFragment extends Fragment {
                 }
                 else {
                     // turn into public func related to activity
+                    // validate that trip name is entered
                     Snackbar.make(getActivity().findViewById(android.R.id.content), "Please enter a trip name", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }

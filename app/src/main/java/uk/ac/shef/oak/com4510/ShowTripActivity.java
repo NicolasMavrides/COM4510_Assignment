@@ -1,9 +1,7 @@
 package uk.ac.shef.oak.com4510;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-
 import uk.ac.shef.oak.com451.R;
 
 public class ShowTripActivity extends AppCompatActivity {
