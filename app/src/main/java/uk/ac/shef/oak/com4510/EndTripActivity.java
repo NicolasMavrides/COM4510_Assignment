@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -56,7 +55,8 @@ public class EndTripActivity extends AppCompatActivity {
 
         DecimalFormat decf = new DecimalFormat("##.###");
         TextView distance = findViewById(R.id.summary_distance_traveled);
-        distance.setText(decf.format(distance_travelled)+"km");
+        String distance_string = decf.format(distance_travelled)+" km";
+        distance.setText(distance_string);
 
         float defaultValue = 100000f;
         TextView avg_temp = findViewById(R.id.summary_average_temp);
@@ -64,7 +64,8 @@ public class EndTripActivity extends AppCompatActivity {
             avg_temp.setText("N/A");
         }
         else {
-            avg_temp.setText(String.valueOf(average_temperature));
+            String avg_temp_string = average_temperature+" C";
+            avg_temp.setText(avg_temp_string);
         }
 
         TextView avg_press = findViewById(R.id.summary_average_pressure);
@@ -72,7 +73,8 @@ public class EndTripActivity extends AppCompatActivity {
             avg_press.setText("N/A");
         }
         else {
-            avg_press.setText(String.valueOf(average_pressure));
+            String avg_press_string = average_pressure+" mbar";
+            avg_press.setText(avg_press_string);
         }
 
         // Done Button Initialization

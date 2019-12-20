@@ -37,4 +37,10 @@
     <string name="summary_distance_traveled">Distance Travelled:</string>
     <string name="summary_average_temp">Average Temperature:</string>
     <string name="summary_average_pressure">Average Pressure:</string>
+
+    <string name="photo_description">Description:</string>
+    <string name="photo_temp">Temp:</string>
+    <string name="photo_press">Pressure:</string>
+
+    <string name="content_description">Our logo</string>
 </resources>

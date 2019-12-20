@@ -72,7 +72,7 @@ public class NVELocationService extends Service {
         accelerometer = new Accelerometer(this, barometer, thermometer);
         // initializing location request and client
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
+        mLocationRequest.setInterval(20000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);

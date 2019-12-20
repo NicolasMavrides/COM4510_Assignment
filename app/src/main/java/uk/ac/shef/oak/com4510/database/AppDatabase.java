@@ -7,7 +7,7 @@ import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @androidx.room.Database(entities = {Trip.class, Photo.class}, version = 1, exportSchema = false)
-@TypeConverters({LatLngConverter.class, Photo_IdConverter.class})
+@TypeConverters({LatLngConverter.class})
 
 public abstract class AppDatabase extends RoomDatabase {
     public abstract PhotoDAO photoDao();
