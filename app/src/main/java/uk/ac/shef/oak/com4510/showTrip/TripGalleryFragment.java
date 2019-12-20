@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -17,7 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import uk.ac.shef.oak.com451.R;
 import uk.ac.shef.oak.com4510.database.Photo;
-import static uk.ac.shef.oak.com4510.showTrip.ShowTripActivity.getTripID;
+import static uk.ac.shef.oak.com4510.showTrip.ShowTripActivity.getTripName;
 
 
 /**
@@ -52,8 +51,8 @@ public class TripGalleryFragment extends Fragment {
         mAdapter = new TripGalleryAdapter(myPictureList);
         mRecyclerView.setAdapter(mAdapter);
 
-        long trip_id = getTripID();
-        tripGalleryViewModel.getPhotosByTripID(trip_id).observe(getFragment(), new Observer<List<Photo>>() {
+        String tname = getTripName();
+        tripGalleryViewModel.getPhotosByTripName(tname).observe(getFragment(), new Observer<List<Photo>>() {
             @Override
             public void onChanged(@Nullable List<Photo> photosByTrip) {
                 Log.i("Photo: ", "changed");

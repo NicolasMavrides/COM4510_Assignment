@@ -31,8 +31,8 @@ public interface PhotoDAO {
     @Query("SELECT * FROM Photo WHERE photo_id = :photo_id")
     LiveData<List<Photo>> retrievePhotoById(long photo_id);
 
-    @Query("SELECT * FROM Photo WHERE trip_id = :trip_id")
-    LiveData<List<Photo>> retrievePhotoByTripId(long trip_id);
+    @Query("SELECT * FROM Photo WHERE trip_name = :trip_name")
+    LiveData<List<Photo>> retrievePhotoByTripName(String trip_name);
 
     @Query("SELECT * FROM Photo WHERE title = :date")
     List<Photo> retrievePhotoByDate(String date);

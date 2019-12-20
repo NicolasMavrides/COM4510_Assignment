@@ -23,7 +23,7 @@ public class Photo {
     private float longitude;
     private float temperature;
     private float pressure;
-    private long trip_id;
+    private String trip_name;
 
     /** Photo Constructor
      * @param title photo title
@@ -36,7 +36,7 @@ public class Photo {
      * @param date date when photo was taken
      */
 
-    public Photo(String title, String date, String description, String file_path, float latitude, float longitude, float temperature, float pressure, long trip_id) {
+    public Photo(String title, String date, String description, String file_path, float latitude, float longitude, float temperature, float pressure, String trip_name) {
         this.title= title;
         this.description= description;
         this.file_path = file_path;
@@ -45,7 +45,7 @@ public class Photo {
         this.temperature= temperature;
         this.pressure= pressure;
         this.date= date;
-        this.trip_id = trip_id;
+        this.trip_name = trip_name;
     }
 
     // Getter and Setter methods
@@ -122,11 +122,11 @@ public class Photo {
         this.date = date;
     }
 
-    public long getTrip_id() {
-        return trip_id;
+    public String getTrip_name() {
+        return trip_name;
     }
 
-    public void setTrip_id(long trip_id) {
-        this.trip_id = trip_id;
+    public void setTrip_name(String trip_name) {
+        this.trip_name = trip_name;
     }
 }

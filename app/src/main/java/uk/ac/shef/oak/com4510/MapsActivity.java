@@ -178,16 +178,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        // photo button initialization
-        FloatingActionButton addPhoto = findViewById(R.id.add_photo);
-        addPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), NewImageActivity.class);
-                getActivity().startActivity(intent);
-            }
-        });
-
         // button enabling
         prefs= getSharedPreferences("uk.ac.shef.oak.ServiceRunning", MODE_PRIVATE);
         if (prefs.getString("tracking", "DEFAULT").equals("started")){
@@ -227,6 +217,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         getSupportActionBar().setTitle(mtrip);
         Log.i("date: ", mdate);
         Log.i("route_name", mtrip);
+
+        // photo button initialization
+        FloatingActionButton addPhoto = findViewById(R.id.add_photo);
+        addPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NewImageActivity.class);
+                intent.putExtra("trip_name", mtrip);
+                getActivity().startActivity(intent);
+            }
+        });
 
         // saves the trip name and date
         try {

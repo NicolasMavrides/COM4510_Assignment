@@ -46,6 +46,7 @@ public class NewImageActivity extends AppCompatActivity {
     private List<LatLng> polyline_points;
     private SharedPreferences prefs;
     private String filePath;
+    private String mtrip;
 
     private MyRepository mRepository;
 
@@ -65,6 +66,11 @@ public class NewImageActivity extends AppCompatActivity {
         initEasyImage();
 
         imagePreview = findViewById(R.id.preview);
+
+        Bundle b = getIntent().getExtras();
+        if(b != null) {
+            mtrip = b.getString("trip_name");
+        }
 
         // the button that will allow us to get the images from the Gallery
         Button fabGallery = findViewById(R.id.fab_gallery);
@@ -140,8 +146,7 @@ public class NewImageActivity extends AppCompatActivity {
                         float longitude = (float) polyline_points.get(polyline_points.size()-1).longitude;
 
                         Date c = Calendar.getInstance().getTime();
-                        long tripID = mRepository.getCurrentTripID();
-                        mRepository.insertPhoto(new Photo(titleStr, String.valueOf(c), description, filePath, latitude, longitude, mcTemp, mcPress, tripID), prefs);
+                        mRepository.insertPhoto(new Photo(titleStr, String.valueOf(c), description, filePath, latitude, longitude, mcTemp, mcPress, mtrip), prefs);
 
                         MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
                                 MapsActivity.getMap(), titleStr, true, 14.0f, snippStr);

@@ -26,7 +26,6 @@ public class MyRepository {
     private LiveData<List<Trip>> allTrips;
     private TripDAO tripDao;
     private static long photoId;
-    private static long tripID;
 
     private MutableLiveData<List<Photo>> photosList = new MutableLiveData<>();
     private LiveData<List<Photo>> allPhotos;
@@ -42,12 +41,12 @@ public class MyRepository {
         allPhotos = photoDao.retrieveAllPhotos();
     }
 
-    public long getCurrentTripID() {
-        return tripID;
-    }
-
     public PhotoDAO getPhotoDao() {
         return photoDao;
+    }
+
+    public TripDAO getTripDao() {
+        return tripDao;
     }
 
     /* Data handling methods for the trip object */
@@ -67,8 +66,6 @@ public class MyRepository {
         DeleteAsyncTripTask task = new DeleteAsyncTripTask(tripDao);
         task.execute(trip);
     }
-
-
 
     /* Data handling methods for the photo object */
 
@@ -92,15 +89,15 @@ public class MyRepository {
         photoId = id;
     }
 
-    private void asyncTripFinished(LiveData<List<Trip>> tripsResults) {
-        tripsList.setValue(tripsResults.getValue());
+    private void asyncTripFinished(List<Trip> tripsResults) {
+        tripsList.setValue(tripsResults);
     }
 
     private void asyncPhotoFinished(List<Photo> photosResults) {
         photosList.setValue(photosResults);
     }
 
-    private static class QueryAsyncTripTask extends AsyncTask<String, Void, LiveData<List<Trip>> > {
+    private static class QueryAsyncTripTask extends AsyncTask<String, Void, List<Trip> > {
 
         private TripDAO asyncTaskTripDao;
         private MyRepository repository = null;
@@ -110,12 +107,12 @@ public class MyRepository {
         }
 
         @Override
-        protected LiveData<List<Trip>> doInBackground(final String... params) {
+        protected List<Trip> doInBackground(final String... params) {
             return asyncTaskTripDao.retrieveTripByTitle(params[0]);
         }
 
         @Override
-        protected void onPostExecute(LiveData<List<Trip>> tripResult) {
+        protected void onPostExecute(List<Trip> tripResult) {
             repository.asyncTripFinished(tripResult);
         }
     }
@@ -187,7 +184,7 @@ public class MyRepository {
 
     /* Asynchronous insert task for Trip */
 
-    private static class InsertAsyncTripTask extends AsyncTask<Trip, Void, Void> {
+    private static class InsertAsyncTripTask extends AsyncTask<Trip, Void, String> {
 
         private TripDAO asyncTaskTripDao;
 
@@ -196,11 +193,15 @@ public class MyRepository {
         }
 
         @Override
-        protected Void doInBackground(final Trip... params) {
-            tripID = asyncTaskTripDao.insertTrip(params[0]);
+        protected String doInBackground(final Trip... params) {
+            return String.valueOf(asyncTaskTripDao.insertTrip(params[0]));
+        }
+
+        @Override
+        protected void onPostExecute(final String trip_id) {
+            Globals.setTripId(trip_id);
             Log.i("AysncTask: ", "data submitted");
-            Log.i("Trip: ", params[0].getName());
-            return null;
+            Log.i("Trip: ", trip_id);
         }
     }
 

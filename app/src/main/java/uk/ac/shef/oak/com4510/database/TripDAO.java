@@ -25,7 +25,7 @@ public interface TripDAO {
     LiveData<List<Trip>> retrieveAllTrips();
 
     @Query("SELECT * FROM Trip WHERE name = :title")
-    LiveData<List<Trip>> retrieveTripByTitle(String title);
+    List<Trip> retrieveTripByTitle(String title);
 
     @Delete
     void deleteAll(Trip... tripData);

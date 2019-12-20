@@ -68,8 +68,8 @@ public class TripGalleryViewModel extends AndroidViewModel {
     }
 
 
-    LiveData<List<Photo>> getPhotosByTripID(long trip_id) {
-        LiveData<List<Photo>> t = (mRepository.getPhotoDao()).retrievePhotoByTripId(trip_id);
+    LiveData<List<Photo>> getPhotosByTripName(String tname) {
+        LiveData<List<Photo>> t = (mRepository.getPhotoDao()).retrievePhotoByTripName(tname);
         return t;
     }
 

@@ -19,7 +19,7 @@ public class ShowTripActivity extends AppCompatActivity {
     public static AppCompatActivity getActivity() {
         return activity;
     }
-    private static long trip_id;
+    private static String trip_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +38,7 @@ public class ShowTripActivity extends AppCompatActivity {
                 Trip element= HomeAdapter.getItems().get(position);
 
                 getSupportActionBar().setTitle(element.getName());
-                trip_id = element.getTrip_id();
+                trip_name = element.getName();
 
                 //Date
                 TextView dateText = findViewById(R.id.view_date);
@@ -78,7 +78,7 @@ public class ShowTripActivity extends AppCompatActivity {
         }
     }
 
-    public static long getTripID(){
-        return trip_id;
+    public static String getTripName(){
+        return trip_name;
     }
 }
