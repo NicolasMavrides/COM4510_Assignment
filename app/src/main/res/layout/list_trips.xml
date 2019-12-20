@@ -1,39 +1,33 @@
-<ScrollView android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scrollbarAlwaysDrawVerticalTrack="true"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_marginTop="0dp"
+    android:padding="15dp"
+    android:background="@drawable/border2"
+    android:orientation="horizontal">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/trip_date"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:padding="15dp"
-        android:background="@drawable/border2"
-        android:orientation="horizontal">
+        android:textSize="13sp"
+        android:layout_weight="1"
+        android:textColor="#000000" />
 
-        <TextView
-            android:id="@+id/trip_date"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:textSize="13sp"
-            android:layout_weight="1"
-            android:textColor="#000000" />
+    <TextView
+        android:id="@+id/trip_time"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:layout_weight="1"
+        android:textColor="#000000" />
 
-        <TextView
-            android:id="@+id/trip_time"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:textSize="13sp"
-            android:layout_weight="1"
-            android:textColor="#000000" />
+    <TextView
+        android:id="@+id/trip_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:layout_weight="2"
+        android:textColor="#000000" />
 
-        <TextView
-            android:id="@+id/trip_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="13sp"
-            android:layout_weight="2"
-            android:textColor="#000000" />
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

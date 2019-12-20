@@ -13,45 +13,44 @@ import androidx.room.PrimaryKey;
 public class Trip {
     @PrimaryKey(autoGenerate = true)
     @androidx.annotation.NonNull
-    private int trip_id=0;
+    private long trip_id=0;
     private String date;
     private String name;
-    private String description;
+    private String timeTaken;
+    private Double distance;
     private float av_temperature;
     private float av_pressure;
     private String latitudes;
     private String longitudes;
-    private String photo_ids;
 
     /** Trip Constructor
      * @param date date of the trip
      * @param name name of the trip
-     * @param description description of the trip
+     * @param timeTaken time taken for the trip
+     * @param distance distance travelled on trip
      * @param av_temperature average temperature sensed during the trip
      * @param av_pressure average pressure sensed during the trip
      * @param latitudes list of latitudes from duration of the trip
      * @param longitudes list of longitudes from duration of the trip
-     * @param photo_ids list of IDs of photos that were taken during the trip (links the photos to
-     *                  their respective trip)
      */
-    public Trip(String date, String name, String description, float av_temperature, float av_pressure, String latitudes, String longitudes, String photo_ids) {
+    public Trip(String date, String name, String timeTaken, Double distance, float av_temperature, float av_pressure, String latitudes, String longitudes) {
         this.trip_id= trip_id;
         this.date= date;
         this.name= name;
-        this.description= description;
+        this.timeTaken = timeTaken;
+        this.distance = distance;
         this.av_temperature= av_temperature;
         this.av_pressure= av_pressure;
         this.latitudes= latitudes;
         this.longitudes= longitudes;
-        this.photo_ids= photo_ids;
     }
 
     @androidx.annotation.NonNull
-    public int getTrip_id() {
+    public long getTrip_id() {
         return trip_id;
     }
 
-    public void setTrip_id(int trip_id) {
+    public void setTrip_id(long trip_id) {
         this.trip_id = trip_id;
     }
 
@@ -71,19 +70,11 @@ public class Trip {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public float getAv_temperature() {
         return av_temperature;
     }
 
-    public void setAv_temperature(int av_temperature) {
+    public void setAv_temperature(float av_temperature) {
         this.av_temperature = av_temperature;
     }
 
@@ -91,7 +82,7 @@ public class Trip {
         return av_pressure;
     }
 
-    public void setAv_pressure(int av_pressure) {
+    public void setAv_pressure(float av_pressure) {
         this.av_pressure = av_pressure;
     }
 
@@ -111,11 +102,19 @@ public class Trip {
         this.longitudes = longitudes;
     }
 
-    public String getPhoto_ids() {
-        return photo_ids;
+    public String getTimeTaken() {
+        return timeTaken;
     }
 
-    public void setPhoto_ids(String photo_ids) {
-        this.photo_ids = photo_ids;
+    public void setTimeTaken(String timeTaken) {
+        this.timeTaken = timeTaken;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 }

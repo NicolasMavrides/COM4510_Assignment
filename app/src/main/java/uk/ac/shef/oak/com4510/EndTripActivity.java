@@ -54,9 +54,9 @@ public class EndTripActivity extends AppCompatActivity {
         TextView time = findViewById(R.id.summary_time_taken);
         time.setText(time_taken);
 
-        DecimalFormat decf = new DecimalFormat("###.##");
+        DecimalFormat decf = new DecimalFormat("##.###");
         TextView distance = findViewById(R.id.summary_distance_traveled);
-        distance.setText(decf.format(distance_travelled)+"m");
+        distance.setText(decf.format(distance_travelled)+"km");
 
         float defaultValue = 100000f;
         TextView avg_temp = findViewById(R.id.summary_average_temp);

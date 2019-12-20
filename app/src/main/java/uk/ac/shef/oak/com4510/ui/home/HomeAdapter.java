@@ -2,6 +2,7 @@ package uk.ac.shef.oak.com4510.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
-import uk.ac.shef.oak.com4510.ShowTripActivity;
+import uk.ac.shef.oak.com4510.showTrip.ShowTripActivity;
 import uk.ac.shef.oak.com4510.database.Trip;
 
 /**
@@ -54,9 +55,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             Date date = new Date(items.get(position).getDate());
             SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
             String formattedDate = df.format(date);
+            Log.i("Date formatted: ", formattedDate);
 
             SimpleDateFormat tf = new SimpleDateFormat("h:mm a");
-            final String formattedTime = tf.format(date);
+            String formattedTime = tf.format(date);
+            Log.i("Time formatted: ", formattedTime);
 
             holder.time.setText(formattedTime);
             holder.date.setText(formattedDate);
@@ -82,5 +85,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             date = itemView.findViewById(R.id.trip_date);
             time = itemView.findViewById(R.id.trip_time);
         }
+    }
+
+    public static List<Trip> getItems() {
+        return items;
     }
 }

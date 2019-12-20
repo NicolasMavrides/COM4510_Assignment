@@ -1,19 +1,20 @@
-package uk.ac.shef.oak.com4510.ui.gallery;
+package uk.ac.shef.oak.com4510.showTrip;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import uk.ac.shef.oak.com451.R;
-import uk.ac.shef.oak.com4510.ShowImageActivity;
 import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
+import uk.ac.shef.oak.com451.R;
+import uk.ac.shef.oak.com4510.ShowImageActivity;
 import uk.ac.shef.oak.com4510.database.Photo;
 
 /**
@@ -21,15 +22,16 @@ import uk.ac.shef.oak.com4510.database.Photo;
  * related to the app's Gallery functions
  */
 
-public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Holder> {
+public class TripGalleryAdapter extends RecyclerView.Adapter<TripGalleryAdapter.View_Holder> {
     static private Context context;
     private static List<Photo> items;
 
-    public GalleryAdapter(List<Photo> items) {
+    public TripGalleryAdapter(List<Photo> items) {
         this.items = items;
     }
 
     public void updateData(List<Photo> photos){
+        Log.i("Updating: ", "doing");
         items.clear();
         items.addAll(photos);
         notifyDataSetChanged();
@@ -47,9 +49,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
 
     @Override
     public void onBindViewHolder(final View_Holder holder, final int position) {
-
         //Use the provided View Holder on the onCreateViewHolder method to populate the
         // current row on the RecyclerView
+        Log.i("Adding: ", "doing");
         if (holder!=null && items.get(position)!=null) {
             if (items.get(position).getFile_path()!=null){
                 new UploadSingleImageTask().execute(new HolderAndPosition(position, holder));
@@ -149,6 +151,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.View_Hol
     }
 
     public static void setItems(List<Photo> items) {
-        GalleryAdapter.items = items;
+        TripGalleryAdapter.items = items;
     }
 }

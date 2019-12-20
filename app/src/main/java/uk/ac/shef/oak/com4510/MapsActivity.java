@@ -321,7 +321,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String[] pids = prefs.getString("photo_ids", "").split(";");
             for (String pid:pids){
                 try {
-                    Photo nphoto = pdao.retrievePhotoById(Integer.valueOf(pid)).get(0);
+                    Photo nphoto = pdao.retrievePhotoById(Integer.valueOf(pid)).getValue().get(0);
                     setMarker(new LatLng((double)nphoto.getLatitude(), (double)nphoto.getLongitude()),
                               getMap(),
                               nphoto.getTitle(),
@@ -573,7 +573,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String pid = prefs.getString("photo_ids", "");
 
             // inserting trip in db
-            mRepository.insertTrip(new Trip(mdate, mtrip, "", avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng), pid));
+            mRepository.insertTrip(new Trip(mdate, mtrip, String.valueOf(timer.getText()), polylineDistance(polyline), avgTemp, avgPress, lc.floatToStoredString(lat), lc.floatToStoredString(lng)));
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", "");
             editor.apply();
@@ -643,7 +643,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                               pts.get(i).longitude, pts.get(i+1).longitude,
                               0, 0);
         }
-        return total;
+        return total/1000;
     }
 
 }

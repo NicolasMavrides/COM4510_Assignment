@@ -19,6 +19,7 @@ public class MyRepository {
     private LiveData<List<Trip>> allTrips;
     private TripDAO tripDao;
     private static long photoId;
+    private static long tripID;
 
     private MutableLiveData<List<Photo>> photosList = new MutableLiveData<>();
     private LiveData<List<Photo>> allPhotos;
@@ -31,6 +32,18 @@ public class MyRepository {
         allTrips = tripDao.retrieveAllTrips();
         photoDao = db.photoDao();
         allPhotos = photoDao.retrieveAllPhotos();
+    }
+
+    public TripDAO getTripDao() {
+        return tripDao;
+    }
+
+    public long getCurrentTripID() {
+        return tripID;
+    }
+
+    public PhotoDAO getPhotoDao() {
+        return photoDao;
     }
 
     public void insertTrip(Trip newTrip) {
@@ -70,8 +83,8 @@ public class MyRepository {
         photoId = id;
     }
 
-    private void asyncTripFinished(List<Trip> tripsResults) {
-        tripsList.setValue(tripsResults);
+    private void asyncTripFinished(LiveData<List<Trip>> tripsResults) {
+        tripsList.setValue(tripsResults.getValue());
     }
 
     private void asyncPhotoFinished(List<Photo> photosResults) {
@@ -79,7 +92,7 @@ public class MyRepository {
     }
 
 
-    private static class QueryAsyncTripTask extends AsyncTask<String, Void, List<Trip>> {
+    private static class QueryAsyncTripTask extends AsyncTask<String, Void, LiveData<List<Trip>> > {
 
         private TripDAO asyncTaskTripDao;
         private MyRepository repository = null;
@@ -89,12 +102,12 @@ public class MyRepository {
         }
 
         @Override
-        protected List<Trip> doInBackground(final String... params) {
+        protected LiveData<List<Trip>> doInBackground(final String... params) {
             return asyncTaskTripDao.retrieveTripByTitle(params[0]);
         }
 
         @Override
-        protected void onPostExecute(List<Trip> tripResult) {
+        protected void onPostExecute(LiveData<List<Trip>> tripResult) {
             repository.asyncTripFinished(tripResult);
         }
     }
@@ -135,7 +148,6 @@ public class MyRepository {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("photo_ids", currentPhotoIds+photoId+";");
             editor.apply();
-
             return null;
         }
     }
@@ -166,7 +178,7 @@ public class MyRepository {
 
         @Override
         protected Void doInBackground(final Trip... params) {
-            asyncTaskTripDao.insertTrip(params[0]);
+            tripID = asyncTaskTripDao.insertTrip(params[0]);
             Log.i("AysncTask: ", "data submitted");
             Log.i("Trip: ", params[0].getName());
             return null;

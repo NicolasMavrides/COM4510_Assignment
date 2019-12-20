@@ -138,7 +138,8 @@ public class NewImageActivity extends AppCompatActivity {
                         float longitude = (float) polyline_points.get(polyline_points.size()-1).longitude;
 
                         Date c = Calendar.getInstance().getTime();
-                        mRepository.insertPhoto(new Photo(titleStr, String.valueOf(c), snippStr, filePath, latitude, longitude, mcTemp, mcPress), prefs);
+                        long tripID = mRepository.getCurrentTripID();
+                        mRepository.insertPhoto(new Photo(titleStr, String.valueOf(c), description, filePath, latitude, longitude, mcTemp, mcPress, tripID), prefs);
 
                         MapsActivity.setMarker(polyline_points.get(polyline_points.size()-1),
                                 MapsActivity.getMap(), titleStr, true, 14.0f, snippStr);

@@ -16,7 +16,7 @@ public interface TripDAO {
     void insertAll(Trip... tripData);
 
     @Insert
-    void insertTrip(Trip trip);
+    long insertTrip(Trip trip);
 
     @Delete
     void deleteTrip(Trip trip);
@@ -25,9 +25,7 @@ public interface TripDAO {
     LiveData<List<Trip>> retrieveAllTrips();
 
     @Query("SELECT * FROM Trip WHERE name = :title")
-    List<Trip> retrieveTripByTitle(String title);
-
-    //TODO Other queries
+    LiveData<List<Trip>> retrieveTripByTitle(String title);
 
     @Delete
     void deleteAll(Trip... tripData);
